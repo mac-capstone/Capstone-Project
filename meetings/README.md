@@ -4,7 +4,7 @@
 - [September 3, 2025 - First Meeting](#september-3-2025---first-meeting)
 - [September 15, 2025 - Second Meeting](#september-15-2025---second-meeting)
 - [September 19, 2025 - Third Meeting](#september-19-2025---third-meeting)
-
+- [October 4, 2025 - Fourth Meeting](#october-4-2025---fourth-meeting)
 ---
 
 ## September 3, 2025 - First Meeting
@@ -58,5 +58,24 @@
 - Finalize project idea.
 - Complete and review the project proposal form.
 - Discuss core features and future plan.
+
+---
+
+## October 4, 2025 - Fourth Meeting
+
+**Attendees:**  
+- Michael  
+- Asad  
+- Viransh  
+- Jayesh  
+- Abdul-Hadi  
+- Eduardo  
+- Ankush  
+
+**Agenda:**  
+- Discuss the SRS and development plan.  
+- Add complexity to the project idea.  
+- Research feasibility of the P2P Tap-to-Pay feature.  
+- Consider pivoting to a restaurant social app with Interac e-transfer, instead of Tap-to-Pay.
 
 ---
