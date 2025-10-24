@@ -6,6 +6,7 @@
 - [September 19, 2025 - Third Meeting](#september-19-2025---third-meeting)
 - [October 4, 2025 - Fourth Meeting](#october-4-2025---fourth-meeting)
 - [October 9, 2025 - Fifth Meeting](#october-10-2025---fifth-meeting)
+- [October 23, 2025 - Sixth Meeting](#october-23-2025---sixth-meeting)
 ---
 
 ## September 3, 2025 - First Meeting
@@ -96,5 +97,21 @@
 - Generalize the project idea to all group outings but keep the restaurant and bill-splitting focus.
 - Finish the SRS and development plan.
 - Start working on the design starting October 14, 2025.
+
+---
+
+# October 23, 2025 - Sixth Meeting
+
+**Attendees:**
+- Michael
+- Viransh
+- Jayesh
+- Ankush
+
+**Agenda:**
+- Set up Android Studio for Android build of the app.
+- Install necessary SDKs and tools.
+- Configure and start project for Android development.
+- Start Figma app design.
 
 ---
