@@ -19,12 +19,14 @@ export const getLanguage = () => storage.getString(LOCAL); // 'Marc' getItem<Lan
 
 export const translate = memoize(
   (key: TxKeyPath, options = undefined) =>
+    // eslint-disable-next-line import/no-named-as-default-member
     i18n.t(key, options) as unknown as string,
   (key: TxKeyPath, options: typeof TranslateOptions) =>
     options ? key + JSON.stringify(options) : key
 );
 
 export const changeLanguage = (lang: Language) => {
+  // eslint-disable-next-line import/no-named-as-default-member
   i18n.changeLanguage(lang);
   if (lang === 'ar') {
     I18nManager.forceRTL(true);
