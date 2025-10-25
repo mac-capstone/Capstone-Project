@@ -1,0 +1,36 @@
+
+. "$(dirname "$0")/common.sh"
+
+
+echo "===\n>> Checking branch name..."
+
+# Check if branch protection is enabled
+if [[ -z $SKIP_BRANCH_PROTECTION ]]; then
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    PROTECTED_BRANCHES="^(main|master)"
+
+    if [[ $BRANCH =~ $PROTECTED_BRANCHES ]]; then
+        echo ">> Direct commits to the $BRANCH branch are not allowed. Please choose a new branch name."
+        exit 1
+    fi
+    # Enforce branch naming convention
+    # Required pattern: name/title (e.g., ankush/add-login)
+    if [[ ! $BRANCH =~ ^[^/]+/.+$ ]]; then
+        echo "❌ Error: Branch name '$BRANCH' does not match required pattern 'name/title'"
+        echo ""
+        echo "Examples of valid branch names:"
+        echo "  - ankush/user-login"
+        echo "  - jayesh/ocr-integration"
+        echo ""
+        echo "Current branch '$BRANCH' should be renamed to follow the pattern."
+        exit 1
+    fi
+else
+    echo ">> Skipping branch protection."
+fi
+
+echo ">> Finish checking branch name"
+echo ">> Linting your files and fixing them if needed..."
+
+# pnpm type-check
+pnpm lint-staged
