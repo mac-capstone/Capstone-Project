@@ -1,0 +1,36 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@env": ["./src/lib/env.js"]
+    },
+    "esModuleInterop": true,
+    "checkJs": true
+  },
+  "exclude": [
+    "node_modules",
+    "node_modules/**",
+    "**/node_modules/**",
+    "babel.config.js",
+    "metro.config.js",
+    "docs",
+    "cli",
+    "android",
+    "ios",
+    "lint-staged.config.js"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "__mocks__/**/*.ts",
+    "app.config.ts",
+    "jest-setup.ts",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+  ]
+}
