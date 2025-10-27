@@ -1,0 +1,20 @@
+diff --git a/src/constants.ts b/src/constants.ts
+index 41591325fd7828b1184f5fd6d793ae0e36f224c2..030dd2348077dd8c9c23bb50f17ef6e398894cf6 100644
+--- a/src/constants.ts
++++ b/src/constants.ts
+@@ -1,5 +1,5 @@
+ import { Dimensions, Platform } from 'react-native';
+-import type Animated from 'react-native-reanimated';
++// import type Animated from 'react-native-reanimated';
+ import { Easing } from 'react-native-reanimated';
+ import type { SpringConfig, TimingConfig } from './types';
+ 
+@@ -69,7 +69,7 @@ enum SNAP_POINT_TYPE {
+   DYNAMIC = 1,
+ }
+ 
+-const ANIMATION_EASING: Animated.EasingFunction = Easing.out(Easing.exp);
++const ANIMATION_EASING = Easing.out(Easing.exp);
+ const ANIMATION_DURATION = 250;
+ 
+ const ANIMATION_CONFIGS = Platform.select<TimingConfig | SpringConfig>({

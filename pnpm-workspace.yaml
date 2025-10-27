@@ -1,0 +1,2 @@
+patchedDependencies:
+  '@gorhom/bottom-sheet': patches/@gorhom__bottom-sheet.patch
