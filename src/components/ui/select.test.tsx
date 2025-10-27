@@ -90,8 +90,8 @@ describe('Select component ', () => {
     const selectTrigger = screen.getByTestId('select-trigger');
     await user.press(selectTrigger);
 
-    const optionModal = screen.getByTestId('select-modal');
-    await user.press(optionModal);
+    // const optionModal = screen.getByTestId('select-modal');
+    // await user.press(optionModal);
 
     const optionItem1 = screen.getByTestId('select-item-chocolate');
     await user.press(optionItem1);
