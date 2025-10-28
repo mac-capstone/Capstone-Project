@@ -9,24 +9,13 @@ Unnamed App </h1>
 - [Expo dev environment](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&platform=android&device=simulated&buildEnv=local)
 - [Node.js LTS release](https://nodejs.org/en/)
 - [Pnpm](https://pnpm.io/installation)
+- Android Studio SDK Tools NDK Version 27.1.12297006
 
 ### Windows only
 
 - Download the latest ninja release from [here](https://github.com/ninja-build/ninja/releases/latest)
+- Save the folder path where ninja.exe is as `NINJA_HOME` env variable or follow the steps below
 - Unzip and place the ninja.exe file in "C:\ninja\ninja.exe" (same path as `-DCMAKE_MAKE_PROGRAM=${path}` in `android\app\build.gradle`)
-- If running a **general fresh build or android fresh build**, add the below code snippet in `android\app\build.gradle` inside the `android.defaultConfig` block:
-
-```gradle
-    // Only run externalNativeBuild on your windows
-    def isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
-    if (isWindows) {
-        externalNativeBuild {
-            cmake {
-                arguments "-DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe", "-DCMAKE_OBJECT_PATH_MAX=1024"
-            }
-        }
-    }
-```
 
 ## Env variables (wip)
 
@@ -84,6 +73,10 @@ Run on real device (android)
 - `pnpm android --device` select your device
 
 ## Contribution Guide
+
+### Before Committing
+
+- Run `pnpm run lint:fix` to fix linting issues
 
 ### PR Title
 
