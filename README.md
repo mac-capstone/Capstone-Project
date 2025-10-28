@@ -62,7 +62,6 @@ run a fresh build (general)
 
 ```
 rm -rf node_modules
-pnpm expo prebuild --clean
 ```
 
 run a fresh build (android)
