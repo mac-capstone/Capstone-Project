@@ -10,6 +10,24 @@ Unnamed App </h1>
 - [Node.js LTS release](https://nodejs.org/en/)
 - [Pnpm](https://pnpm.io/installation)
 
+### Windows only
+
+- Download the latest ninja release from [here](https://github.com/ninja-build/ninja/releases/latest)
+- Unzip and place the ninja.exe file in "C:\ninja\ninja.exe" (same path as `-DCMAKE_MAKE_PROGRAM=${path}` in `android\app\build.gradle`)
+- If running a **general fresh build or android fresh build**, add the below code snippet in `android\app\build.gradle` inside the `android.defaultConfig` block:
+
+```gradle
+    // Only run externalNativeBuild on your windows
+    def isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+    if (isWindows) {
+        externalNativeBuild {
+            cmake {
+                arguments "-DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe", "-DCMAKE_OBJECT_PATH_MAX=1024"
+            }
+        }
+    }
+```
+
 ## Env variables (wip)
 
 ## Run the app
