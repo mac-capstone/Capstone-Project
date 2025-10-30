@@ -45,18 +45,22 @@
     "@expo/metro-runtime": "^6.1.2",
     "@gorhom/bottom-sheet": "^5.2.6",
     "@hookform/resolvers": "^3.9.0",
+    "@react-native-ml-kit/text-recognition": "^2.0.0",
     "@shopify/flash-list": "2.0.2",
     "@tanstack/react-query": "^5.52.1",
     "app-icon-badge": "^0.1.2",
     "axios": "^1.7.5",
     "expo": "~54.0.20",
+    "expo-asset": "^12.0.9",
     "expo-constants": "~18.0.10",
     "expo-crypto": "^15.0.7",
     "expo-dev-client": "~6.0.16",
+    "expo-file-system": "^19.0.17",
     "expo-font": "~14.0.9",
     "expo-image": "~3.0.10",
     "expo-linking": "~8.0.8",
     "expo-localization": "~17.0.7",
+    "expo-media-library": "^18.2.0",
     "expo-router": "~6.0.13",
     "expo-splash-screen": "~31.0.10",
     "expo-status-bar": "~3.0.8",
@@ -139,7 +143,7 @@
     "type": "git",
     "url": "git+https://github.com/user/repo-name.git"
   },
-  "packageManager": "pnpm@10.12.3",
+  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {

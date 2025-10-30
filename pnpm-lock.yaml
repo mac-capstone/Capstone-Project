@@ -22,6 +22,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.9.0(react-hook-form@7.53.0(react@19.1.0))
+      '@react-native-ml-kit/text-recognition':
+        specifier: ^2.0.0
+        version: 2.0.0(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@shopify/flash-list':
         specifier: 2.0.2
         version: 2.0.2(@babel/runtime@7.26.0)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -37,6 +40,9 @@ importers:
       expo:
         specifier: ~54.0.20
         version: 54.0.20(@babel/core@7.26.0)(@expo/metro-runtime@6.1.2)(expo-router@6.0.13)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      expo-asset:
+        specifier: ^12.0.9
+        version: 12.0.9(expo@54.0.20)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-constants:
         specifier: ~18.0.10
         version: 18.0.10(expo@54.0.20)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))
@@ -46,6 +52,9 @@ importers:
       expo-dev-client:
         specifier: ~6.0.16
         version: 6.0.16(expo@54.0.20)
+      expo-file-system:
+        specifier: ^19.0.17
+        version: 19.0.17(expo@54.0.20)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))
       expo-font:
         specifier: ~14.0.9
         version: 14.0.9(expo@54.0.20)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -58,6 +67,9 @@ importers:
       expo-localization:
         specifier: ~17.0.7
         version: 17.0.7(expo@54.0.20)(react@19.1.0)
+      expo-media-library:
+        specifier: ^18.2.0
+        version: 18.2.0(expo@54.0.20)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))
       expo-router:
         specifier: ~6.0.13
         version: 6.0.13(47509207a494b94af5f4cc660821400e)
@@ -1789,6 +1801,12 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@react-native-ml-kit/text-recognition@2.0.0':
+    resolution: {integrity: sha512-RHefLYKndSyoDtgqHQptYQe+mftFk6/H30IQDenKX7PgMlJqoDejX+HdZ8gnP1kVNAt3iH+wyl/P6vCOkLMW9Q==}
+    peerDependencies:
+      react: '>=16.8.1'
+      react-native: '>=0.60.0-rc.0 <1.0.x'
 
   '@react-native/assets-registry@0.81.5':
     resolution: {integrity: sha512-705B6x/5Kxm1RKRvSv0ADYWm5JOnoiQ1ufW7h8uu2E6G9Of/eE6hP/Ivw3U5jI16ERqZxiKQwk34VJbB0niX9w==}
@@ -3785,6 +3803,12 @@ packages:
     resolution: {integrity: sha512-nA5PwU2uiUd+2nkDWf9e71AuFAtbrb330g/ecvuu52bmaXtN8J8oiilc9BDvAX0gg2fbtOaZdEdjBYopt1jdlQ==}
     peerDependencies:
       expo: '*'
+
+  expo-media-library@18.2.0:
+    resolution: {integrity: sha512-aIYLIqmU8LFWrQcfZdwg9f/iWm0wC8uhZ7HiUiTnrigtxf417cVvNokX9afXpIOKBHAHRjVIbcs1nN8KZDE2Fw==}
+    peerDependencies:
+      expo: '*'
+      react-native: '*'
 
   expo-modules-autolinking@3.0.19:
     resolution: {integrity: sha512-tSMYGnfZmAaN77X8iMLiaSgbCFnA7eh6s2ac09J2N2N0Rcf2RCE27jg0c0XenTMTWUcM4QvLhsNHof/WtlKqPw==}
@@ -9700,6 +9724,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.17
 
+  '@react-native-ml-kit/text-recognition@2.0.0(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      react: 19.1.0
+      react-native: 0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0)
+
   '@react-native/assets-registry@0.81.5': {}
 
   '@react-native/babel-plugin-codegen@0.81.5(@babel/core@7.26.0)':
@@ -12136,6 +12165,11 @@ snapshots:
       expo-json-utils: 0.15.0
     transitivePeerDependencies:
       - supports-color
+
+  expo-media-library@18.2.0(expo@54.0.20)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0)):
+    dependencies:
+      expo: 54.0.20(@babel/core@7.26.0)(@expo/metro-runtime@6.1.2)(expo-router@6.0.13)(react-native@0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      react-native: 0.81.5(@babel/core@7.26.0)(@types/react@19.1.17)(react@19.1.0)
 
   expo-modules-autolinking@3.0.19:
     dependencies:
