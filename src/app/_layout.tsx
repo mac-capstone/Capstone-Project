@@ -3,9 +3,10 @@ import '../../global.css';
 
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -32,6 +33,22 @@ SplashScreen.setOptions({
 });
 
 export default function RootLayout() {
+  const [loadedFonts] = useFonts({
+    Inter: require('../../assets/fonts/Inter.ttf'),
+    FuturaCyrillic: require('../../assets/fonts/FuturaCyrillicMedium.ttf'),
+    FuturaCyrillicBold: require('../../assets/fonts/FuturaCyrillicBold.ttf'),
+    FuturaCyrillicBook: require('../../assets/fonts/FuturaCyrillicBook.ttf'),
+    FuturaCyrillicDemi: require('../../assets/fonts/FuturaCyrillicDemi.ttf'),
+    FuturaCyrillicExtraBold: require('../../assets/fonts/FuturaCyrillicExtraBold.ttf'),
+    FuturaCyrillicHeavy: require('../../assets/fonts/FuturaCyrillicHeavy.ttf'),
+    FuturaCyrillicLight: require('../../assets/fonts/FuturaCyrillicLight.ttf'),
+    FuturaCyrillicMedium: require('../../assets/fonts/FuturaCyrillicMedium.ttf'),
+  });
+  useEffect(() => {
+    if (loadedFonts) SplashScreen.hideAsync();
+  }, [loadedFonts]);
+
+  if (!loadedFonts) return null;
   return (
     <Providers>
       <Stack>
