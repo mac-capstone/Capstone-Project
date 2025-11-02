@@ -213,7 +213,7 @@ importers:
         specifier: ^16.4.5
         version: 16.4.5
       eslint:
-        specifier: ^9.28.0
+        specifier: ^9.29.0
         version: 9.29.0(jiti@1.21.6)
       eslint-config-expo:
         specifier: ^10.0.0

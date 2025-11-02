@@ -40,6 +40,7 @@ export default defineConfig([
       'simple-import-sort': simpleImportSort,
       unicorn: eslintPluginUnicorn,
       'unused-imports': unusedImports,
+      'tailwindcss/recommended': tailwind,
     },
     rules: {
       'max-params': ['error', 3],
