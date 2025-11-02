@@ -62,8 +62,8 @@ export default function Feed() {
     <View className="flex-1">
       <FlashList
         data={expenses}
-        renderItem={({ item }) => <ExpenseCard key={item.id} {...item} />}
-        keyExtractor={(_, index) => `item-${index}`}
+        renderItem={({ item }) => <ExpenseCard {...item} hasProgress={true} />}
+        keyExtractor={(item) => item.id}
         ListEmptyComponent={<EmptyList isLoading={false} />}
       />
     </View>

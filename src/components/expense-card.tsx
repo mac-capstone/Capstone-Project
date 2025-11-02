@@ -8,7 +8,8 @@ export const ExpenseCard = ({
   totalAmount,
   date,
   remainingAmount,
-}: Expense) => {
+  hasProgress = false,
+}: Expense & { hasProgress?: boolean }) => {
   const formattedDate = new Date(date).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -40,12 +41,14 @@ export const ExpenseCard = ({
             Total
           </Text>
         </View>
-        <ProgressBar
-          className=""
-          initialProgress={
-            ((totalAmount - remainingAmount) / totalAmount) * 100
-          }
-        />
+        {hasProgress && (
+          <ProgressBar
+            className=""
+            initialProgress={
+              ((totalAmount - remainingAmount) / totalAmount) * 100
+            }
+          />
+        )}
       </View>
     </View>
   );
