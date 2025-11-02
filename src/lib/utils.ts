@@ -1,4 +1,5 @@
 import { Linking } from 'react-native';
+import { twMerge } from 'tailwind-merge';
 import type { StoreApi, UseBoundStore } from 'zustand';
 
 export function openLinkInBrowser(url: string) {
@@ -19,4 +20,8 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
   }
 
   return store;
+};
+
+export const cn = (...classes: string[]) => {
+  return twMerge(classes.filter(Boolean).join(' '));
 };

@@ -1,34 +1,70 @@
 import { FlashList } from '@shopify/flash-list';
 import React from 'react';
 
-import type { Post } from '@/api';
-import { usePosts } from '@/api';
-import { Card } from '@/components/card';
-import { EmptyList, FocusAwareStatusBar, Text, View } from '@/components/ui';
+import { ExpenseCard } from '@/components/expense-card';
+import { EmptyList, View } from '@/components/ui';
+import { type Expense } from '@/types';
 
 export default function Feed() {
-  const { data, isPending, isError } = usePosts();
-  const renderItem = React.useCallback(
-    ({ item }: { item: Post }) => <Card {...item} />,
-    []
-  );
+  const expenses: Expense[] = [
+    {
+      id: '1',
+      name: 'Boston Pizza',
+      totalAmount: 64.23,
+      date: '2025-10-20',
+      remainingAmount: 23.45,
+    },
+    {
+      id: '2',
+      name: 'Hai Di Lao',
+      totalAmount: 250.1,
+      date: '2025-10-30',
+      remainingAmount: 100.39,
+    },
+    {
+      id: '3',
+      name: 'Hai Di Lao',
+      totalAmount: 250.1,
+      date: '2025-10-30',
+      remainingAmount: 100.39,
+    },
+    {
+      id: '4',
+      name: 'Hai Di Lao',
+      totalAmount: 250.1,
+      date: '2025-10-30',
+      remainingAmount: 100.39,
+    },
+    {
+      id: '5',
+      name: 'Hai Di Lao',
+      totalAmount: 250.1,
+      date: '2025-10-30',
+      remainingAmount: 100.39,
+    },
+    {
+      id: '6',
+      name: 'Hai Di Lao',
+      totalAmount: 250.1,
+      date: '2025-10-30',
+      remainingAmount: 0,
+    },
+    {
+      id: '7',
+      name: 'Hai Di Lao',
+      totalAmount: 250.1,
+      date: '2025-10-30',
+      remainingAmount: 100.39,
+    },
+  ];
 
-  if (isError) {
-    return (
-      <View>
-        <Text> Error Loading data </Text>
-      </View>
-    );
-  }
   return (
-    <View className="flex-1 ">
-      <FocusAwareStatusBar />
+    <View className="flex-1">
       <FlashList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(_, index) => `item-${index}`}
-        ListEmptyComponent={<EmptyList isLoading={isPending} />}
-        // estimatedItemSize={300}
+        data={expenses}
+        renderItem={({ item }) => <ExpenseCard {...item} hasProgress={true} />}
+        keyExtractor={(item) => item.id}
+        ListEmptyComponent={<EmptyList isLoading={false} />}
       />
     </View>
   );

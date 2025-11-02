@@ -68,7 +68,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-font',
       {
-        fonts: ['./assets/fonts/Inter.ttf'],
+        fonts: [
+          './assets/fonts/Inter.ttf',
+          './assets/fonts/FuturaCyrillicBold.ttf',
+          './assets/fonts/FuturaCyrillicBook.ttf',
+          './assets/fonts/FuturaCyrillicDemi.ttf',
+          './assets/fonts/FuturaCyrillicExtraBold.ttf',
+          './assets/fonts/FuturaCyrillicHeavy.ttf',
+          './assets/fonts/FuturaCyrillicLight.ttf',
+          './assets/fonts/FuturaCyrillicMedium.ttf',
+        ],
       },
     ],
     'expo-localization',

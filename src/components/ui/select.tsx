@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import {
   BottomSheetFlatList,
   type BottomSheetModal,
@@ -15,7 +14,6 @@ import Svg, { Path } from 'react-native-svg';
 import { tv } from 'tailwind-variants';
 
 import colors from '@/components/ui/colors';
-import { CaretDown } from '@/components/ui/icons';
 
 import type { InputControllerType } from './input';
 import { Modal, useModal } from './modal';
@@ -204,7 +202,6 @@ export const Select = (props: SelectProps) => {
           <View className="flex-1">
             <Text className={styles.inputValue()}>{textValue}</Text>
           </View>
-          <CaretDown />
         </Pressable>
         {error && (
           <Text

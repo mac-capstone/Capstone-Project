@@ -10,6 +10,14 @@ module.exports = {
     extend: {
       fontFamily: {
         inter: ['Inter'],
+        futura: ['FuturaCyrillic'],
+        futuraBold: ['FuturaCyrillicBold'],
+        futuraBook: ['FuturaCyrillicBook'],
+        futuraDemi: ['FuturaCyrillicDemi'],
+        futuraExtraBold: ['FuturaCyrillicExtraBold'],
+        futuraHeavy: ['FuturaCyrillicHeavy'],
+        futuraLight: ['FuturaCyrillicLight'],
+        futuraMedium: ['FuturaCyrillicMedium'],
       },
       colors,
     },
