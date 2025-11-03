@@ -31,7 +31,7 @@ export const ExpenseCard = ({
         router.push(`/expense/${id}`);
       }}
     >
-      <View className="min-h-40 rounded-xl bg-background-900">
+      <View className="min-h-40 rounded-xl  bg-background-900 shadow-lg">
         <View className="flex flex-col justify-between gap-1 px-5 py-6">
           <View className="flex flex-row justify-between">
             <Text className="font-futuraBold text-xl text-text-50 dark:text-text-50">
