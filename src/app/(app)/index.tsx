@@ -1,70 +1,41 @@
 import { FlashList } from '@shopify/flash-list';
 import React from 'react';
 
+import { useExpenses } from '@/api/expenses/use-expenses';
+import { DottedAddButton } from '@/components/dotted-add-button';
 import { ExpenseCard } from '@/components/expense-card';
-import { EmptyList, View } from '@/components/ui';
-import { type Expense } from '@/types';
+import { ActivityIndicator, Text, View } from '@/components/ui';
 
 export default function Feed() {
-  const expenses: Expense[] = [
-    {
-      id: '1',
-      name: 'Boston Pizza',
-      totalAmount: 64.23,
-      date: '2025-10-20',
-      remainingAmount: 23.45,
-    },
-    {
-      id: '2',
-      name: 'Hai Di Lao',
-      totalAmount: 250.1,
-      date: '2025-10-30',
-      remainingAmount: 100.39,
-    },
-    {
-      id: '3',
-      name: 'Hai Di Lao',
-      totalAmount: 250.1,
-      date: '2025-10-30',
-      remainingAmount: 100.39,
-    },
-    {
-      id: '4',
-      name: 'Hai Di Lao',
-      totalAmount: 250.1,
-      date: '2025-10-30',
-      remainingAmount: 100.39,
-    },
-    {
-      id: '5',
-      name: 'Hai Di Lao',
-      totalAmount: 250.1,
-      date: '2025-10-30',
-      remainingAmount: 100.39,
-    },
-    {
-      id: '6',
-      name: 'Hai Di Lao',
-      totalAmount: 250.1,
-      date: '2025-10-30',
-      remainingAmount: 0,
-    },
-    {
-      id: '7',
-      name: 'Hai Di Lao',
-      totalAmount: 250.1,
-      date: '2025-10-30',
-      remainingAmount: 100.39,
-    },
-  ];
-
+  const { data, isPending, isError } = useExpenses();
+  if (isPending) {
+    return <ActivityIndicator />;
+  }
+  if (isError) {
+    return (
+      <View className="flex-1 justify-center p-3">
+        <Text>Error loading expenses</Text>
+      </View>
+    );
+  }
   return (
-    <View className="flex-1">
+    <View className="flex-1 px-3">
       <FlashList
-        data={expenses}
+        data={data}
         renderItem={({ item }) => <ExpenseCard {...item} hasProgress={true} />}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={<EmptyList isLoading={false} />}
+        ListEmptyComponent={
+          <DottedAddButton text="Add new expense" path="/expense/add-expense" />
+        }
+        ListFooterComponent={
+          <View className="mt-5">
+            <DottedAddButton
+              text="Add new expense"
+              path="/expense/add-expense"
+            />
+          </View>
+        }
+        ItemSeparatorComponent={() => <View className="h-5" />} // 12px gap
       />
     </View>
   );

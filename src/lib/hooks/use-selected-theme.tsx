@@ -25,7 +25,7 @@ export const useSelectedTheme = () => {
     [setColorScheme, _setTheme]
   );
 
-  const selectedTheme = (theme ?? 'system') as ColorSchemeType;
+  const selectedTheme = (theme ?? 'dark') as ColorSchemeType;
   return { selectedTheme, setSelectedTheme } as const;
 };
 // to be used in the root file to load the selected theme from MMKV
@@ -34,5 +34,7 @@ export const loadSelectedTheme = () => {
   if (theme !== undefined) {
     console.log('theme', theme);
     colorScheme.set(theme as ColorSchemeType);
+  } else {
+    colorScheme.set('dark');
   }
 };
