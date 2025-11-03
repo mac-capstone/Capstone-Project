@@ -14,7 +14,7 @@ const mockExpenses: Expense[] = [
     id: '2' as ExpenseIdT,
     name: 'Hai Di Lao',
     totalAmount: 250.1,
-    date: '2025-10-30',
+    date: '2024-10-30',
     remainingAmount: 100.39,
   },
   {

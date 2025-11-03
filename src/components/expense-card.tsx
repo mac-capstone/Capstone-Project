@@ -12,10 +12,16 @@ export const ExpenseCard = ({
   remainingAmount,
   hasProgress = false,
 }: Expense & { hasProgress?: boolean }) => {
-  const formattedDate = new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
+  const isThisYear = new Date(date).getFullYear() === new Date().getFullYear();
+  const formattedDate = isThisYear
+    ? new Date(date).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+      })
+    : new Date(date).toLocaleDateString('en-GB', {
+        month: 'short',
+        year: 'numeric',
+      });
 
   const router = useRouter();
   return (
