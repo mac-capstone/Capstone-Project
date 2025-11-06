@@ -169,5 +169,7 @@
 - Discuss the project’s code file structure.
 - Review React Native and Tailwind CSS best practices.
 - Go over all necessary code components, modules, and files for the app.
+- Define components, hooks, APIs & queries
+- Define color, internationalization for strings (i8n), file routing, and structure.
 
 ---
