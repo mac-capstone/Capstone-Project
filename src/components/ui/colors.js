@@ -86,4 +86,11 @@ module.exports = {
   accent: {
     100: '#00DBC5',
   },
+  avatar: {
+    red: '#C10007',
+    blue: '#007595',
+    green: '#00A63E',
+    yellow: '#D08700',
+    white: '#A4A4A4',
+  },
 };

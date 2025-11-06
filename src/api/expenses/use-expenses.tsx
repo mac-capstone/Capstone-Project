@@ -1,32 +1,10 @@
 import { createQuery } from 'react-query-kit';
 
-import { type Expense, type ExpenseIdT } from '@/types';
+import { mockData } from '@/lib/mock-data';
+import { mapMockExpenseToExpenseWithId } from '@/lib/utils';
+import { type Expense, type ExpenseIdT, type ExpenseWithId } from '@/types';
 
-const mockExpenses: Expense[] = [
-  {
-    id: '1' as ExpenseIdT,
-    name: 'Boston Pizza',
-    totalAmount: 64.23,
-    date: '2025-10-20',
-    remainingAmount: 23.45,
-  },
-  {
-    id: '2' as ExpenseIdT,
-    name: 'Hai Di Lao',
-    totalAmount: 250.1,
-    date: '2024-10-30',
-    remainingAmount: 100.39,
-  },
-  {
-    id: '3' as ExpenseIdT,
-    name: "Wendy's",
-    totalAmount: 30.15,
-    date: '2025-10-30',
-    remainingAmount: 24.39,
-  },
-];
-
-type AllExpensesResponse = Expense[];
+type AllExpensesResponse = ExpenseWithId[];
 type AllExpensesVariables = void;
 export const useExpenses = createQuery<
   AllExpensesResponse,
@@ -35,7 +13,7 @@ export const useExpenses = createQuery<
 >({
   queryKey: ['expenses'],
   fetcher: () => {
-    return mockExpenses;
+    return mockData.expenses.map(mapMockExpenseToExpenseWithId);
   },
 });
 
@@ -45,9 +23,9 @@ export const useExpense = createQuery<ExpenseResponse, ExpenseVariables, Error>(
   {
     queryKey: ['expenses', 'id'],
     fetcher: async (variables) => {
-      const expense = mockExpenses.find((e) => e.id === variables.id);
+      const expense = mockData.expenses.find((e) => e.id === variables.id);
       if (!expense) throw new Error('Expense not found');
-      return expense;
+      return expense.doc as Expense;
     },
   }
 );

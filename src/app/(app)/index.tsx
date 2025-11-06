@@ -22,13 +22,15 @@ export default function Feed() {
     <View className="flex-1 px-3">
       <FlashList
         data={data}
-        renderItem={({ item }) => <ExpenseCard {...item} hasProgress={true} />}
+        renderItem={({ item }) => (
+          <ExpenseCard id={item.id} config="progress" />
+        )}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
           <DottedAddButton text="Add new expense" path="/expense/add-expense" />
         }
         ListFooterComponent={
-          <View className="mt-5">
+          <View className="pt-5">
             <DottedAddButton
               text="Add new expense"
               path="/expense/add-expense"
