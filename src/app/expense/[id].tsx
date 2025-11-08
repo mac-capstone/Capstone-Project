@@ -202,7 +202,7 @@ export const SegmentToggle = ({
       />
       <Pressable
         onPress={() => onChange('split')}
-        className="z-10 flex-1 items-center justify-center rounded-full"
+        className="z-10 h-full flex-1 items-center justify-center rounded-full"
         accessibilityRole="button"
         accessibilityState={{ selected: value === 'split' }}
       >
@@ -219,7 +219,7 @@ export const SegmentToggle = ({
       </Pressable>
       <Pressable
         onPress={() => onChange('items')}
-        className="z-10 flex-1 items-center justify-center rounded-full"
+        className="z-10 h-full flex-1 items-center justify-center rounded-full"
         accessibilityRole="button"
         accessibilityState={{ selected: value === 'items' }}
       >
