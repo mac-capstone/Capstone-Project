@@ -96,6 +96,16 @@ export default function AddExpense() {
           <CreateItemCard />
         </View>
       </View>
+      <View className="px-4 pb-3">
+        <Button
+          className="min-h-12"
+          label="Scan Receipt"
+          icon={<Ionicons name="scan-outline" size={20} />}
+          onPress={() => {
+            console.log('scan receipt');
+          }}
+        />
+      </View>
       <ExpenseCreationFooter
         nextDisabled={
           tempExpense?.totalAmount === 0 || tempExpense?.name === ''
