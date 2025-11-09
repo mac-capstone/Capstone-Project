@@ -1,17 +1,22 @@
-import { useRouter } from 'expo-router';
-
 import { Button, Text, View } from '@/components/ui';
 
 export default function ExpenseCreationFooter({
   totalAmount,
   hasNext = true,
   hasPrevious = true,
+  nextDisabled = false,
+  previousDisabled = false,
+  onNextPress,
+  onPreviousPress,
 }: {
   totalAmount: number;
   hasNext?: boolean;
+  nextDisabled?: boolean;
   hasPrevious?: boolean;
+  previousDisabled?: boolean;
+  onNextPress?: () => void;
+  onPreviousPress?: () => void;
 }) {
-  const router = useRouter();
   return (
     <View className="flex-row items-center justify-between bg-background-900 p-8">
       <View className="flex flex-col">
@@ -25,15 +30,23 @@ export default function ExpenseCreationFooter({
       <View className="flex-row items-center gap-2">
         {hasPrevious && (
           <Button
+            disabled={previousDisabled}
             className="w-28"
             variant="outline"
             size="lg"
             label="Back"
-            onPress={() => router.back()}
+            onPress={onPreviousPress}
           />
         )}
         {hasNext && (
-          <Button className="w-28" variant="default" size="lg" label="Next" />
+          <Button
+            disabled={nextDisabled}
+            className="w-28"
+            variant="default"
+            size="lg"
+            label="Next"
+            onPress={onNextPress}
+          />
         )}
       </View>
     </View>
