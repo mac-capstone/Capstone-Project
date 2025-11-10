@@ -7,8 +7,7 @@ import {
   mapMockItemToItemWithId,
   mapMockPersonToPersonWithId,
 } from '@/lib/utils';
-
-import { type ExpenseIdT } from '../../types';
+import { type ExpenseIdT } from '@/types';
 
 export default function ShowcaseItemCard() {
   // Using the first item from the first expense in mockData

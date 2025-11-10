@@ -2,13 +2,14 @@ import { AntDesign } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { useUpdateItemShares } from '../api/items/use-update-item';
 import {
   type ExpenseIdT,
   type ItemWithId,
   type PersonIdT,
   type PersonWithId,
-} from '../types';
+} from '@/types';
+
+import { useUpdateItemShares } from '../api/items/use-update-item';
 import { PersonAvatar } from './person-avatar';
 import { Button } from './ui/button';
 
