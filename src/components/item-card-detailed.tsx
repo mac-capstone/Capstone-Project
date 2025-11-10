@@ -2,6 +2,7 @@ import { AntDesign } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useExpenseCreation } from '@/lib/store';
 import {
   type ExpenseIdT,
   type ItemWithId,
@@ -9,7 +10,6 @@ import {
   type PersonWithId,
 } from '@/types';
 
-import { useUpdateItemShares } from '../api/items/use-update-item';
 import { PersonAvatar } from './person-avatar';
 import { Button } from './ui/button';
 
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
-  const { mutate: updateShares } = useUpdateItemShares();
+  const updateItemShare = useExpenseCreation.use.updateItemShare();
 
   if (!item) {
     return null;
@@ -42,24 +42,14 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
 
   const handleIncrease = (personId: PersonIdT) => {
     const currentShare = item.split.shares[personId] || 0;
-    const newShare = parseFloat((currentShare + 0.1).toFixed(1));
-    updateShares({
-      expenseId,
-      itemId,
-      personId: personId,
-      newShare,
-    });
+    const newShare = parseFloat((currentShare + 1).toFixed(1));
+    updateItemShare(itemId, personId, newShare);
   };
 
   const handleDecrease = (personId: PersonIdT) => {
     const currentShare = item.split.shares[personId] || 0;
-    const newShare = parseFloat(Math.max(0, currentShare - 0.1).toFixed(1));
-    updateShares({
-      expenseId,
-      itemId,
-      personId: personId,
-      newShare,
-    });
+    const newShare = parseFloat(Math.max(0, currentShare - 1).toFixed(1));
+    updateItemShare(itemId, personId, newShare);
   };
 
   const participants = assignedPeople.map((person) => {
@@ -73,7 +63,7 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
   });
 
   return (
-    <View className="m-2 w-11/12 overflow-hidden rounded-xl bg-neutral-800 p-4 shadow-lg">
+    <View className="m-2 w-full overflow-hidden rounded-xl bg-neutral-800 p-4 shadow-lg">
       {/* Top section */}
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
@@ -82,22 +72,22 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
               <View
                 key={person.id}
                 style={{
-                  marginLeft: index > 0 ? -12 : 0,
+                  marginLeft: index > 0 ? 5 : 0,
                 }}
               >
                 <PersonAvatar
                   personId={person.id}
                   expenseId={expenseId}
-                  size="md"
+                  size="lg"
                 />
               </View>
             ))}
           </View>
           <Pressable className="ml-3">
-            <AntDesign name="close" size={24} color="white" />
+            <AntDesign name="close" size={12} color="red" />
           </Pressable>
         </View>
-        <Button label="$ Custom" variant="secondary" size="sm" />
+        <Button label="$ Custom" variant="outline" size="sm" />
       </View>
 
       {/* Item details */}
@@ -109,7 +99,7 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
       </View>
 
       {/* Participants */}
-      <View className="mt-6">
+      <View className="mt-4">
         {participants.map((participant, index) => {
           if (!participant) {
             return null;
@@ -117,20 +107,20 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
           return (
             <View
               key={index}
-              className="flex-row items-center justify-between py-3"
+              className="flex-row items-center justify-between py-2"
             >
               <Text className="text-lg text-white">{participant.name}</Text>
               <View className="flex-row items-center">
                 <Pressable onPress={() => handleDecrease(participant.id)}>
-                  <AntDesign name="minus" size={20} color="white" />
+                  <AntDesign name="minus" size={16} color="white" />
                 </Pressable>
-                <View className="mx-4 min-w-10 items-center justify-center rounded-md bg-white px-2 py-1">
-                  <Text className="text-lg font-bold text-black">
+                <View className="mx-4 min-h-8 min-w-8 items-center justify-center rounded-md bg-white px-2 py-1">
+                  <Text className="text-md font-bold text-black">
                     {participant.quantity}
                   </Text>
                 </View>
                 <Pressable onPress={() => handleIncrease(participant.id)}>
-                  <AntDesign name="plus" size={20} color="white" />
+                  <AntDesign name="plus" size={16} color="white" />
                 </Pressable>
                 <Text className="ml-5 w-16 text-right text-lg text-white">
                   {participant.price}

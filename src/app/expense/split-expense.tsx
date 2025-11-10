@@ -2,9 +2,11 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { router, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
 
+import { ItemCardDetailedCustom } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
 import { useThemeConfig } from '@/lib/use-theme-config';
+import { type ExpenseIdT } from '@/types';
 
 export default function SplitExpense() {
   const theme = useThemeConfig();
@@ -20,6 +22,10 @@ export default function SplitExpense() {
   if (!tempExpense) {
     return <ActivityIndicator />;
   }
+
+  const mappedItem = tempExpense.items[0];
+  const mappedPeople = tempExpense.people;
+
   return (
     <>
       <Stack.Screen
@@ -51,6 +57,13 @@ export default function SplitExpense() {
         <Text className="font-futuraBold text-4xl dark:text-text-50">
           {tempExpense?.name}
         </Text>
+        <View className="flex min-w-max items-center justify-center">
+          <ItemCardDetailedCustom
+            item={mappedItem}
+            people={mappedPeople}
+            expenseId={tempExpense?.id as ExpenseIdT}
+          />
+        </View>
       </View>
     </>
   );
