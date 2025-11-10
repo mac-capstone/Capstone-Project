@@ -23,13 +23,13 @@ const inputTv = tv({
     container: 'mb-2',
     label: 'text-grey-100 mb-1 text-lg dark:text-neutral-100',
     input:
-      'mt-0 rounded-xl border-[0.5px] border-neutral-300 bg-neutral-100 px-4 py-3 font-inter text-base  font-medium leading-5 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white',
+      'mt-0 rounded-xl bg-neutral-100 px-4 py-3 font-inter text-base font-semibold leading-5  dark:bg-background-900 dark:text-white',
   },
 
   variants: {
     focused: {
       true: {
-        input: 'border-neutral-400 dark:border-neutral-300',
+        input: 'border-[0.5px] border-neutral-400 dark:border-accent-100',
       },
     },
     error: {
@@ -55,6 +55,10 @@ export interface NInputProps extends TextInputProps {
   label?: string;
   disabled?: boolean;
   error?: string;
+  /** Tailwind classes for the outer container (View) */
+  containerClassName?: string;
+  /** Tailwind classes for the TextInput itself */
+  inputClassName?: string;
 }
 
 type TRule<T extends FieldValues> =
@@ -76,7 +80,14 @@ interface ControlledInputProps<T extends FieldValues>
     InputControllerType<T> {}
 
 export const Input = React.forwardRef<NTextInput, NInputProps>((props, ref) => {
-  const { label, error, testID, ...inputProps } = props;
+  const {
+    label,
+    error,
+    testID,
+    containerClassName,
+    inputClassName,
+    ...inputProps
+  } = props;
   const [isFocussed, setIsFocussed] = React.useState(false);
   const onBlur = React.useCallback(() => setIsFocussed(false), []);
   const onFocus = React.useCallback(() => setIsFocussed(true), []);
@@ -92,7 +103,7 @@ export const Input = React.forwardRef<NTextInput, NInputProps>((props, ref) => {
   );
 
   return (
-    <View className={styles.container()}>
+    <View className={`${styles.container()} ${containerClassName ?? ''}`}>
       {label && (
         <Text
           testID={testID ? `${testID}-label` : undefined}
@@ -105,7 +116,7 @@ export const Input = React.forwardRef<NTextInput, NInputProps>((props, ref) => {
         testID={testID}
         ref={ref}
         placeholderTextColor={colors.neutral[400]}
-        className={styles.input()}
+        className={`${styles.input()} ${inputClassName ?? ''}`}
         onBlur={onBlur}
         onFocus={onFocus}
         {...inputProps}

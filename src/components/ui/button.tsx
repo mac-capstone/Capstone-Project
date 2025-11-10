@@ -1,6 +1,6 @@
 import React from 'react';
-import type { PressableProps, View } from 'react-native';
-import { ActivityIndicator, Pressable, Text } from 'react-native';
+import type { PressableProps } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import type { VariantProps } from 'tailwind-variants';
 import { tv } from 'tailwind-variants';
 
@@ -62,8 +62,8 @@ const button = tv({
     },
     disabled: {
       true: {
-        container: 'bg-neutral-300 dark:bg-neutral-300',
-        label: 'text-neutral-600 dark:text-neutral-600',
+        container: 'bg-neutral-300 dark:bg-accent-800',
+        label: 'text-neutral-600 dark:text-black',
         indicator: 'text-neutral-400 dark:text-neutral-400',
       },
     },
@@ -90,6 +90,7 @@ interface Props extends ButtonVariants, Omit<PressableProps, 'disabled'> {
   loading?: boolean;
   className?: string;
   textClassName?: string;
+  icon?: React.ReactNode;
 }
 
 export const Button = React.forwardRef<View, Props>(
@@ -103,6 +104,7 @@ export const Button = React.forwardRef<View, Props>(
       className = '',
       testID,
       textClassName = '',
+      icon,
       ...props
     },
     ref
@@ -131,12 +133,15 @@ export const Button = React.forwardRef<View, Props>(
                 testID={testID ? `${testID}-activity-indicator` : undefined}
               />
             ) : (
-              <Text
-                testID={testID ? `${testID}-label` : undefined}
-                className={styles.label({ className: textClassName })}
-              >
-                {text}
-              </Text>
+              <>
+                {icon && <View className="pr-2">{icon}</View>}
+                <Text
+                  testID={testID ? `${testID}-label` : undefined}
+                  className={styles.label({ className: textClassName })}
+                >
+                  {text}
+                </Text>
+              </>
             )}
           </>
         )}

@@ -1,0 +1,171 @@
+import { create } from 'zustand';
+
+import { type Expense, type ItemWithId, type UserIdT } from '@/types';
+
+import { getItem, removeItem, setItem } from './storage';
+import { createSelectors } from './utils';
+
+const TEMP_EXPENSE_KEY = 'temp-expense';
+type TempExpense = Expense & {
+  items: ItemWithId[];
+};
+export const getTempExpense = () => getItem<TempExpense>(TEMP_EXPENSE_KEY);
+export const removeTempExpense = () => removeItem(TEMP_EXPENSE_KEY);
+export const setTempExpense = (value: TempExpense) => {
+  setItem<TempExpense>(TEMP_EXPENSE_KEY, value);
+};
+
+interface ExpenseCreationState {
+  tempExpense: TempExpense | null;
+  setExpenseName: (name: string) => void;
+  addItem: (item: ItemWithId) => void;
+  removeItem: (itemId: string) => void;
+  updateItem: (itemId: string, updates: Partial<ItemWithId>) => void;
+  clearTempExpense: () => void;
+  initializeTempExpense: (createdBy: UserIdT) => void;
+  hydrate: () => void;
+  getTotalAmount: () => number;
+  getItemCount: () => number;
+}
+
+const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
+  tempExpense: null,
+
+  hydrate: () => {
+    const current = get().tempExpense;
+    if (current !== null) {
+      return;
+    }
+    try {
+      const saved = getTempExpense();
+      if (saved !== null) {
+        set({ tempExpense: saved });
+      }
+    } catch (e) {
+      console.error(e);
+      removeTempExpense();
+    }
+  },
+
+  initializeTempExpense: (createdBy) => {
+    const newTempExpense: TempExpense = {
+      name: '',
+      date: new Date().toISOString(),
+      createdBy,
+      remainingAmount: 0,
+      participantCount: 0,
+      items: [],
+      totalAmount: 0,
+      itemCount: 0,
+    };
+    set({ tempExpense: newTempExpense });
+    setTempExpense(newTempExpense);
+  },
+
+  setExpenseName: (name) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = { ...current, name };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  setItemName: (name: string) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = { ...current, name };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+  setItemAmount: (amount: number) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = { ...current, amount };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  addItem: (item) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = {
+        ...current,
+        items: [...current.items, item],
+        totalAmount: current.totalAmount + item.amount,
+        remainingAmount: current.totalAmount + item.amount,
+        itemCount: current.items.length + 1,
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  removeItem: (itemId) => {
+    const current = get().tempExpense;
+    if (current) {
+      const itemToRemove = current.items.find((item) => item.id === itemId);
+      const updated = {
+        ...current,
+        items: current.items.filter((item) => item.id !== itemId),
+        totalAmount: itemToRemove
+          ? current.totalAmount - itemToRemove.amount
+          : current.totalAmount,
+        remainingAmount: itemToRemove
+          ? current.totalAmount - itemToRemove.amount
+          : current.remainingAmount,
+        itemCount: current.items.length - 1,
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  updateItem: (itemId, updates) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = {
+        ...current,
+        items: current.items.map((item) =>
+          item.id === itemId ? { ...item, ...updates } : item
+        ),
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  clearTempExpense: () => {
+    set({ tempExpense: null });
+    removeTempExpense();
+  },
+
+  getTotalAmount: () => {
+    const current = get().tempExpense;
+    if (!current) return 0;
+    return current.totalAmount;
+  },
+
+  getItemCount: () => {
+    const current = get().tempExpense;
+    if (!current) return 0;
+    return current.items.length;
+  },
+}));
+
+export const useExpenseCreation = createSelectors(_useExpenseCreation);
+
+// Helper functions for non-hook usage
+export const initializeTempExpense = (createdBy: UserIdT) =>
+  _useExpenseCreation.getState().initializeTempExpense(createdBy);
+
+export const clearTempExpense = () =>
+  _useExpenseCreation.getState().clearTempExpense();
+
+export const hydrateTempExpense = () =>
+  _useExpenseCreation.getState().hydrate();
+
+export const getTempExpenseState = () =>
+  _useExpenseCreation.getState().tempExpense;

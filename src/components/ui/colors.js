@@ -77,6 +77,7 @@ module.exports = {
   },
   background: {
     900: '#242424',
+    925: '#1E1E1E',
     950: '#1A1A1A',
   },
   text: {
@@ -85,6 +86,7 @@ module.exports = {
   },
   accent: {
     100: '#00DBC5',
+    800: '#128075',
   },
   avatar: {
     red: '#C10007',
