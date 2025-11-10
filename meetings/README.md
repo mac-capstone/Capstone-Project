@@ -10,6 +10,7 @@
 - [October 23, 2025 - Sixth Meeting](#october-23-2025---sixth-meeting)
 - [October 30, 2025 - Seventh Meeting](#october-30-2025---seventh-meeting)
 - [November 4, 2025 - Eighth Meeting](#november-4-2025---eighth-meeting)
+- [November 6, 2025 - Ninth Meeting](#november-6-2025---ninth-meeting)
 
 ---
 
@@ -132,7 +133,7 @@
 
 ---
 
-# October 30, 2025 - Sixth Meeting
+# October 30, 2025 - Seventh Meeting
 
 **Attendees:**
 
@@ -152,7 +153,7 @@
 
 ---
 
-# November 4, 2025 - Sixth Meeting
+# November 4, 2025 - Eighth Meeting
 
 **Attendees:**
 
@@ -174,7 +175,7 @@
 
 ---
 
-# November 6, 2025 - Seventh Meeting
+# November 6, 2025 - Ninth Meeting
 
 **Attendees:**
 
