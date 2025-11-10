@@ -173,3 +173,22 @@
 - Define color, internationalization for strings (i8n), file routing, and structure.
 
 ---
+
+# November 6, 2025 - Seventh Meeting
+
+**Attendees:**
+
+- Michael
+- Asad
+- Viransh
+- Jayesh
+- Eduardo
+- Ankush
+
+**Agenda:**
+
+- Discuss new code files added since last meeting.
+- Split up the app into smaller modules for development according to PoC Figma.
+- Assign module creation tasks to team members on Linear.
+
+---
