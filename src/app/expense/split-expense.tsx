@@ -1,6 +1,6 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { router, Stack } from 'expo-router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ItemCardDetailedCustom } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
@@ -12,19 +12,20 @@ export default function SplitExpense() {
   const theme = useThemeConfig();
   const tempExpense = useExpenseCreation.use.tempExpense();
   const hydrate = useExpenseCreation.use.hydrate();
+  const [selectedItem, setSelectedItem] = useState(tempExpense?.items[0]);
 
   useEffect(() => {
     if (!tempExpense) {
       hydrate();
+    } else {
+      setSelectedItem(tempExpense.items[0]);
     }
   }, [tempExpense, hydrate]);
 
   if (!tempExpense) {
     return <ActivityIndicator />;
   }
-
-  const mappedItem = tempExpense.items[0];
-  const mappedPeople = tempExpense.people;
+  const selectedPeople = tempExpense.people;
 
   return (
     <>
@@ -57,10 +58,10 @@ export default function SplitExpense() {
         <Text className="font-futuraBold text-4xl dark:text-text-50">
           {tempExpense?.name}
         </Text>
-        <View className="flex min-w-max items-center justify-center">
+        <View className="flex min-w-max items-center justify-center pt-3">
           <ItemCardDetailedCustom
-            item={mappedItem}
-            people={mappedPeople}
+            item={selectedItem}
+            people={selectedPeople}
             expenseId={tempExpense?.id as ExpenseIdT}
           />
         </View>
