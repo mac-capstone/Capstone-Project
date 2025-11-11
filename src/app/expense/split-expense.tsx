@@ -22,7 +22,7 @@ export default function SplitExpense() {
     }
   }, [tempExpense, hydrate]);
 
-  if (!tempExpense) {
+  if (!tempExpense || !selectedItem) {
     return <ActivityIndicator />;
   }
   const selectedPeople = tempExpense.people;

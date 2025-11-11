@@ -1,5 +1,5 @@
 import { AntDesign } from '@expo/vector-icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { useExpenseCreation } from '@/lib/store';
@@ -20,11 +20,8 @@ type Props = {
 };
 
 export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
+  const [splitMode, setSplitMode] = useState<'equal' | 'custom'>('equal');
   const updateItemShare = useExpenseCreation.use.updateItemShare();
-
-  if (!item) {
-    return null;
-  }
 
   const {
     id: itemId,
@@ -32,6 +29,18 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
     amount: itemPrice,
     assignedPersonIds,
   } = item;
+
+  useEffect(() => {
+    if (splitMode === 'equal') {
+      assignedPersonIds.forEach((personId) => {
+        updateItemShare(itemId, personId, 1);
+      });
+    }
+  }, [splitMode, assignedPersonIds, itemId, updateItemShare]);
+
+  if (!item) {
+    return null;
+  }
 
   const assignedPeople = people.filter((p) => assignedPersonIds.includes(p.id));
 
@@ -63,7 +72,7 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
   });
 
   return (
-    <View className="m-2 w-full overflow-hidden rounded-xl bg-neutral-800 p-4 shadow-lg">
+    <View className="w-full overflow-hidden rounded-xl bg-neutral-800 p-4 shadow-lg">
       {/* Top section */}
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
@@ -83,52 +92,64 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
               </View>
             ))}
           </View>
-          <Pressable className="ml-3">
-            <AntDesign name="close" size={12} color="red" />
-          </Pressable>
+          {assignedPeople.length > 0 && (
+            <Pressable className="ml-3">
+              <AntDesign name="close" size={12} color="red" />
+            </Pressable>
+          )}
         </View>
-        <Button label="$ Custom" variant="outline" size="sm" />
+        <Button
+          label={splitMode === 'equal' ? 'Equal' : '$ Custom'}
+          variant="outline"
+          size="sm"
+          onPress={() =>
+            setSplitMode(splitMode === 'equal' ? 'custom' : 'equal')
+          }
+        />
       </View>
 
       {/* Item details */}
-      <View className="mt-4">
-        <Text className="text-3xl font-bold text-white">{itemName}</Text>
-        <Text className="text-lg text-gray-400">{`$${itemPrice.toFixed(
+      <View className="pt-4">
+        <Text className="font-futuraDemi text-3xl dark:text-text-50">
+          {itemName}
+        </Text>
+        <Text className="text-lg dark:text-accent-100">{`$${itemPrice.toFixed(
           2
         )}`}</Text>
       </View>
 
       {/* Participants */}
-      <View className="mt-4">
-        {participants.map((participant, index) => {
-          if (!participant) {
-            return null;
-          }
-          return (
-            <View
-              key={index}
-              className="flex-row items-center justify-between py-2"
-            >
-              <Text className="text-lg text-white">{participant.name}</Text>
-              <View className="flex-row items-center">
-                <Pressable onPress={() => handleDecrease(participant.id)}>
-                  <AntDesign name="minus" size={16} color="white" />
-                </Pressable>
-                <View className="mx-4 min-h-8 min-w-8 items-center justify-center rounded-md bg-white px-2 py-1">
-                  <Text className="text-md font-bold text-black">
-                    {participant.quantity}
+      <View className="pt-4">
+        {splitMode === 'custom' &&
+          participants.map((participant, index) => {
+            if (!participant) {
+              return null;
+            }
+            return (
+              <View
+                key={index}
+                className="flex-row items-center justify-between py-2"
+              >
+                <Text className="text-lg text-white">{participant.name}</Text>
+                <View className="flex-row items-center p-1">
+                  <Pressable onPress={() => handleDecrease(participant.id)}>
+                    <AntDesign name="minus" size={16} color="white" />
+                  </Pressable>
+                  <View className="mx-4 min-h-8 min-w-8 items-center justify-center rounded-md bg-white px-2 py-1">
+                    <Text className="text-md font-bold text-black">
+                      {participant.quantity}
+                    </Text>
+                  </View>
+                  <Pressable onPress={() => handleIncrease(participant.id)}>
+                    <AntDesign name="plus" size={16} color="white" />
+                  </Pressable>
+                  <Text className="ml-5 w-16 text-right text-lg text-white">
+                    {participant.price}
                   </Text>
                 </View>
-                <Pressable onPress={() => handleIncrease(participant.id)}>
-                  <AntDesign name="plus" size={16} color="white" />
-                </Pressable>
-                <Text className="ml-5 w-16 text-right text-lg text-white">
-                  {participant.price}
-                </Text>
               </View>
-            </View>
-          );
-        })}
+            );
+          })}
       </View>
     </View>
   );
