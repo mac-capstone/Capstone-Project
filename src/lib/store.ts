@@ -1,13 +1,22 @@
 import { create } from 'zustand';
 
-import { type Expense, type ItemWithId, type UserIdT } from '@/types';
+import {
+  type ExpenseIdT,
+  type ExpenseWithId,
+  type ItemIdT,
+  type ItemWithId,
+  type PersonIdT,
+  type PersonWithId,
+  type UserIdT,
+} from '@/types';
 
 import { getItem, removeItem, setItem } from './storage';
 import { createSelectors } from './utils';
 
 const TEMP_EXPENSE_KEY = 'temp-expense';
-type TempExpense = Expense & {
+type TempExpense = ExpenseWithId & {
   items: ItemWithId[];
+  people: PersonWithId[];
 };
 export const getTempExpense = () => getItem<TempExpense>(TEMP_EXPENSE_KEY);
 export const removeTempExpense = () => removeItem(TEMP_EXPENSE_KEY);
@@ -21,6 +30,11 @@ interface ExpenseCreationState {
   addItem: (item: ItemWithId) => void;
   removeItem: (itemId: string) => void;
   updateItem: (itemId: string, updates: Partial<ItemWithId>) => void;
+  updateItemShare: (
+    itemId: ItemIdT,
+    personId: PersonIdT,
+    newShare: number
+  ) => void;
   clearTempExpense: () => void;
   initializeTempExpense: (createdBy: UserIdT) => void;
   hydrate: () => void;
@@ -49,12 +63,14 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
 
   initializeTempExpense: (createdBy) => {
     const newTempExpense: TempExpense = {
+      id: ('temp-expense-id-' + Date.now()) as ExpenseIdT,
       name: '',
       date: new Date().toISOString(),
       createdBy,
       remainingAmount: 0,
       participantCount: 0,
       items: [],
+      people: [],
       totalAmount: 0,
       itemCount: 0,
     };
@@ -131,6 +147,26 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
         items: current.items.map((item) =>
           item.id === itemId ? { ...item, ...updates } : item
         ),
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  updateItemShare: (itemId, personId, newShare) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updatedItems = current.items.map((item) => {
+        if (item.id === itemId) {
+          const newShares = { ...item.split.shares, [personId]: newShare };
+          const newSplit = { ...item.split, shares: newShares };
+          return { ...item, split: newSplit };
+        }
+        return item;
+      });
+      const updated = {
+        ...current,
+        items: updatedItems,
       };
       set({ tempExpense: updated });
       setTempExpense(updated);

@@ -1,25 +1,32 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { router, Stack } from 'expo-router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { ItemCardDetailedCustom } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
 import { useThemeConfig } from '@/lib/use-theme-config';
+import { type ExpenseIdT } from '@/types';
 
 export default function SplitExpense() {
   const theme = useThemeConfig();
   const tempExpense = useExpenseCreation.use.tempExpense();
   const hydrate = useExpenseCreation.use.hydrate();
+  const [selectedItem, setSelectedItem] = useState(tempExpense?.items[0]);
 
   useEffect(() => {
     if (!tempExpense) {
       hydrate();
+    } else {
+      setSelectedItem(tempExpense.items[0]);
     }
   }, [tempExpense, hydrate]);
 
-  if (!tempExpense) {
+  if (!tempExpense || !selectedItem) {
     return <ActivityIndicator />;
   }
+  const selectedPeople = tempExpense.people;
+
   return (
     <>
       <Stack.Screen
@@ -51,6 +58,13 @@ export default function SplitExpense() {
         <Text className="font-futuraBold text-4xl dark:text-text-50">
           {tempExpense?.name}
         </Text>
+        <View className="flex min-w-max items-center justify-center pt-3">
+          <ItemCardDetailedCustom
+            item={selectedItem}
+            people={selectedPeople}
+            expenseId={tempExpense?.id as ExpenseIdT}
+          />
+        </View>
       </View>
     </>
   );
