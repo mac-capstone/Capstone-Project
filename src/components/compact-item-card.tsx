@@ -17,7 +17,7 @@ export function CompactItemCard({ item, onPress, selected }: Props) {
       onPress={() => onPress?.(item)}
       className={`w-full flex-row items-center justify-between rounded-xl border p-6 ${
         selected
-          ? 'border-accent-100 bg-accent-800'
+          ? 'border-accent-100 bg-accent-900'
           : 'border-transparent bg-background-900'
       }`}
     >
