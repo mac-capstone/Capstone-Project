@@ -193,3 +193,20 @@
 - Assign module creation tasks to team members on Linear.
 
 ---
+
+# November 13, 2025 - Tenth Meeting
+
+**Attendees:**
+
+- Michael
+- Asad
+- Viransh
+- Jayesh
+
+**Agenda:**
+
+- Review progress on assigned modules according to PoC Figma and Linear tasks.
+- Discuss any challenges faced during development.
+- Plan next steps and set deadlines for UImodule completion.
+
+---
