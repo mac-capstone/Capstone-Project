@@ -11,6 +11,7 @@
 - [October 30, 2025 - Seventh Meeting](#october-30-2025---seventh-meeting)
 - [November 4, 2025 - Eighth Meeting](#november-4-2025---eighth-meeting)
 - [November 6, 2025 - Ninth Meeting](#november-6-2025---ninth-meeting)
+- [November 13, 2025 - Tenth Meeting](#november-13-2025---tenth-meeting)
 
 ---
 
