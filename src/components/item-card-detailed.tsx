@@ -72,12 +72,19 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     return <Text>Error loading item</Text>;
   }
 
+  // Only check item and expense - assignedPersonIds can be empty array
+  if (!item || !expense) {
+    return null;
+  }
+
   const { name: itemName, amount: itemPrice } = item;
   const people = expense.people; // never undefined as we use temp expenses which has people
 
-  const assignedPeople = people?.filter((p: PersonWithId) =>
-    assignedPersonIds.includes(p.id)
-  );
+  // Default to empty array to prevent undefined rendering
+  const assignedPeople =
+    people?.filter((p: PersonWithId) =>
+      (assignedPersonIds ?? []).includes(p.id)
+    ) ?? [];
 
   const totalShares = Object.values(item.split.shares).reduce(
     (acc, share) => acc + share,
@@ -96,7 +103,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     updateItemShare(itemId, personId, newShare);
   };
 
-  const participants = assignedPeople?.map((person: PersonWithId) => {
+  const participants = assignedPeople.map((person: PersonWithId) => {
     const share = item.split.shares[person.id] || 0;
     const price = totalShares > 0 ? (itemPrice / totalShares) * share : 0;
     return {
@@ -112,7 +119,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
           <View className="flex-row">
-            {assignedPeople?.map((person: PersonWithId, index: number) => (
+            {assignedPeople.map((person: PersonWithId, index: number) => (
               <View
                 key={person.id}
                 style={{
@@ -127,7 +134,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
               </View>
             ))}
           </View>
-          {assignedPeople?.length && assignedPeople.length > 0 && (
+          {assignedPeople.length > 0 && (
             <Pressable className="ml-3">
               <AntDesign name="close" size={12} color="red" />
             </Pressable>
@@ -156,7 +163,8 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
       {/* Participants */}
       <View className="pt-4">
         {splitMode === 'custom' &&
-          participants?.map(
+          participants.length > 0 &&
+          participants.map(
             (
               participant: PersonWithId & { quantity: number; price: string },
               index: number
