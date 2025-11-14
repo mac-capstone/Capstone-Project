@@ -1,13 +1,13 @@
 import { FlashList } from '@shopify/flash-list';
 import React from 'react';
 
-import { useExpenses } from '@/api/expenses/use-expenses';
+import { useExpensIds } from '@/api/expenses/use-expenses';
 import { DottedAddButton } from '@/components/dotted-add-button';
 import { ExpenseCard } from '@/components/expense-card';
 import { ActivityIndicator, Text, View } from '@/components/ui';
 
 export default function Feed() {
-  const { data, isPending, isError } = useExpenses();
+  const { data, isPending, isError } = useExpensIds();
   if (isPending) {
     return <ActivityIndicator />;
   }
@@ -22,10 +22,10 @@ export default function Feed() {
     <View className="flex-1 px-3">
       <FlashList
         data={data}
-        renderItem={({ item }) => (
-          <ExpenseCard id={item.id} config="progress" />
+        renderItem={({ item: expenseId }) => (
+          <ExpenseCard id={expenseId} config="progress" />
         )}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(expenseId) => expenseId}
         ListEmptyComponent={
           <DottedAddButton text="Add new expense" path="/expense/add-expense" />
         }

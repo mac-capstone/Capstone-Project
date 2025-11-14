@@ -4,21 +4,32 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { ActivityIndicator, Alert } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 
+import { queryClient } from '@/api';
+import { useExpense } from '@/api/expenses/use-expenses';
 import ExpenseCreationFooter from '@/components/expense-creation-footer';
 import { Button, Input, Pressable, Text, View } from '@/components/ui';
 import { useAuth } from '@/lib';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
 import { useThemeConfig } from '@/lib/use-theme-config';
-import { type ItemIdT } from '@/types';
+import { type ExpenseIdT, type ItemIdT } from '@/types';
+
+const TEMP_EXPENSE_ID = 'temp-expense' as ExpenseIdT;
 
 export default function AddExpense() {
   const theme = useThemeConfig();
   const userId = useAuth.use.userId();
-  const tempExpense = useExpenseCreation.use.tempExpense();
-  const setExpenseName = useExpenseCreation.use.setExpenseName();
+  const {
+    data: tempExpense,
+    isPending,
+    isError,
+  } = useExpense({
+    variables: TEMP_EXPENSE_ID,
+  });
+  const [expenseName, setExpenseName] = useState<string>('');
+  const setExpenseNameInStore = useExpenseCreation.use.setExpenseName();
   const getTotalAmount = useExpenseCreation.use.getTotalAmount();
   const initializeTempExpense = useExpenseCreation.use.initializeTempExpense();
   const hydrate = useExpenseCreation.use.hydrate();
@@ -28,10 +39,47 @@ export default function AddExpense() {
   }, [hydrate]);
 
   useEffect(() => {
-    if (userId && !tempExpense) {
+    // if the user is logged in and the temp expense is not found
+    if (userId && (!tempExpense || isError)) {
       initializeTempExpense(userId);
+      queryClient.invalidateQueries({
+        queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+      });
     }
-  }, [userId, tempExpense, initializeTempExpense]);
+  }, [userId, tempExpense, initializeTempExpense, isError]);
+
+  if (isPending) {
+    return (
+      <>
+        <Stack.Screen
+          options={{
+            title: '',
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontSize: 24,
+              fontWeight: 'bold',
+            },
+            headerLeft: () => (
+              <Pressable onPress={() => router.replace('/')}>
+                <Octicons
+                  name="x"
+                  color={theme.dark ? 'white' : 'black'}
+                  size={24}
+                />
+              </Pressable>
+            ),
+          }}
+        />
+        <View className="flex-1 justify-center p-3">
+          <ActivityIndicator />
+        </View>
+      </>
+    );
+  }
+
+  if (isError) {
+    return <Text>Error loading temp expense</Text>;
+  }
 
   return (
     <>
@@ -60,6 +108,14 @@ export default function AddExpense() {
                         onPress: () => {
                           router.replace('/');
                           clearTempExpense();
+                          setExpenseName('');
+                          queryClient.invalidateQueries({
+                            queryKey: [
+                              'expenses',
+                              'expenseId',
+                              TEMP_EXPENSE_ID,
+                            ],
+                          });
                         },
                       },
                     ]
@@ -67,6 +123,10 @@ export default function AddExpense() {
                 } else {
                   router.replace('/');
                   clearTempExpense();
+                  setExpenseName('');
+                  queryClient.invalidateQueries({
+                    queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+                  });
                 }
               }}
             >
@@ -87,8 +147,11 @@ export default function AddExpense() {
         <View className="pb-11 pt-5">
           <Input
             placeholder="Enter Expense Name"
-            value={tempExpense?.name}
-            onChangeText={(text) => setExpenseName(text)}
+            value={expenseName}
+            onChangeText={(text) => {
+              setExpenseName(text);
+              setExpenseNameInStore(text);
+            }}
           />
         </View>
         <View className="flex flex-col gap-4">
@@ -107,10 +170,13 @@ export default function AddExpense() {
         />
       </View>
       <ExpenseCreationFooter
-        nextDisabled={
-          tempExpense?.totalAmount === 0 || tempExpense?.name === ''
-        }
+        nextDisabled={getTotalAmount() === 0 || expenseName === ''}
         onNextPress={() => {
+          setExpenseNameInStore(expenseName);
+          setExpenseName('');
+          queryClient.invalidateQueries({
+            queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+          });
           router.replace('/expense/split-expense');
         }}
         totalAmount={getTotalAmount()}
@@ -150,6 +216,7 @@ function CreateItemCard() {
         <Input
           placeholder="Enter Item Name"
           containerClassName="flex-1 mb-0"
+          value={tempItemName}
           onChangeText={(text) => setTempItemName(text)}
         />
         <Pressable
@@ -162,6 +229,7 @@ function CreateItemCard() {
       <Input
         placeholder="Enter Item Amount"
         keyboardType="numeric"
+        value={tempItemAmount === 0 ? '' : tempItemAmount.toString()}
         onChangeText={(text) => setTempItemAmount(Number(text))}
       />
       <Button
@@ -177,6 +245,14 @@ function CreateItemCard() {
             },
             assignedPersonIds: [],
           });
+          queryClient.invalidateQueries({
+            queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ['items', 'expenseId', TEMP_EXPENSE_ID],
+          });
+          setTempItemName('');
+          setTempItemAmount(0);
         }}
         disabled={!tempItemName || !tempItemAmount}
       />

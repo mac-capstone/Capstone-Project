@@ -1,31 +1,39 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 
-import { ItemCardDetailedCustom } from '@/components/item-card-detailed';
+import { queryClient } from '@/api/common/api-provider';
+import { useExpense } from '@/api/expenses/use-expenses';
+import { ItemCardDetailed } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
 import { useThemeConfig } from '@/lib/use-theme-config';
 import { type ExpenseIdT } from '@/types';
 
+const TEMP_EXPENSE_ID = 'temp-expense' as ExpenseIdT;
+
 export default function SplitExpense() {
   const theme = useThemeConfig();
-  const tempExpense = useExpenseCreation.use.tempExpense();
+  const {
+    data: tempExpense,
+    isPending,
+    isError,
+  } = useExpense({
+    variables: TEMP_EXPENSE_ID,
+  });
   const hydrate = useExpenseCreation.use.hydrate();
-  const [selectedItem, setSelectedItem] = useState(tempExpense?.items[0]);
+  const [selectedItemId, setSelectedItemId] = useState(
+    tempExpense?.items?.[0]?.id
+  );
 
   useEffect(() => {
     if (!tempExpense) {
       hydrate();
     } else {
-      setSelectedItem(tempExpense.items[0]);
+      setSelectedItemId(tempExpense.items?.[0]?.id);
     }
   }, [tempExpense, hydrate]);
-
-  if (!tempExpense || !selectedItem) {
-    return <ActivityIndicator />;
-  }
-  const selectedPeople = tempExpense.people;
 
   return (
     <>
@@ -40,8 +48,23 @@ export default function SplitExpense() {
           headerLeft: () => (
             <Pressable
               onPress={() => {
-                clearTempExpense();
-                router.replace('/');
+                Alert.alert(
+                  'Unsaved Changes',
+                  'You have unsaved changes. Are you sure you want to leave?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Leave',
+                      onPress: () => {
+                        clearTempExpense();
+                        queryClient.invalidateQueries({
+                          queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+                        });
+                        router.replace('/');
+                      },
+                    },
+                  ]
+                );
               }}
             >
               <Octicons
@@ -54,18 +77,27 @@ export default function SplitExpense() {
           ),
         }}
       />
-      <View className="flex-1 px-4">
-        <Text className="font-futuraBold text-4xl dark:text-text-50">
-          {tempExpense?.name}
-        </Text>
-        <View className="flex min-w-max items-center justify-center pt-3">
-          <ItemCardDetailedCustom
-            item={selectedItem}
-            people={selectedPeople}
-            expenseId={tempExpense?.id as ExpenseIdT}
-          />
+      {isPending || !tempExpense || !selectedItemId ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator />
         </View>
-      </View>
+      ) : isError ? (
+        <View className="flex-1 items-center justify-center">
+          <Text>Error loading temp expense</Text>
+        </View>
+      ) : selectedItemId ? (
+        <View className="flex-1 px-4">
+          <Text className="font-futuraBold text-4xl dark:text-text-50">
+            {tempExpense.name}
+          </Text>
+          <View className="flex min-w-max items-center justify-center pt-3">
+            <ItemCardDetailed
+              expenseId={tempExpense.id as ExpenseIdT}
+              itemId={selectedItemId}
+            />
+          </View>
+        </View>
+      ) : null}
     </>
   );
 }
