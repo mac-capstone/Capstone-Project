@@ -69,9 +69,9 @@ export const AddRemovePerson = ({ item, expenseId }: Props) => {
               expenseId={expenseId}
             />
             {item && assignedPeopleIds.includes(person.id) && (
-              // TODO: @Hadi1723 replace with a better checkmark UI
-              <View className="absolute right-0 top-0 size-4 items-center justify-center rounded-full border-2 border-black bg-green-500">
-                <Text className="text-xs text-white">✓</Text>
+              // TODO: @Hadi1723 replace with a checkmark UI
+              <View>
+                <Text>✓</Text>
               </View>
             )}
           </TouchableOpacity>
