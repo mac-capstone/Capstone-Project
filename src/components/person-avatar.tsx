@@ -1,7 +1,7 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { ActivityIndicator } from 'react-native';
 
-import { usePerson } from '@/api/people/use-person';
+import { usePerson } from '@/api/people/use-people';
 import { colors, Text, View } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { type ExpenseIdT, type PersonIdT } from '@/types';

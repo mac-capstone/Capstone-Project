@@ -29,9 +29,8 @@ export default function Post() {
   }>();
   const [mode, setMode] = useState<'split' | 'items'>('split');
   const { data, isPending, isError } = useExpense({
-    variables: { id },
+    variables: id,
   });
-
   if (isPending) {
     return (
       <View className="flex-1 justify-center p-3">
@@ -141,7 +140,6 @@ export const ExpenseItemsMode = ({ expenseId }: { expenseId: ExpenseIdT }) => {
   if (isError) {
     return <Text>Error loading items</Text>;
   }
-  console.log(data);
   return (
     <>
       <View className="flex min-h-[60vh] w-full flex-col gap-2 pt-4">

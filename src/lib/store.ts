@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import { create } from 'zustand';
 
 import {
@@ -68,7 +67,7 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
 
   initializeTempExpense: (createdBy) => {
     const newTempExpense: TempExpense = {
-      id: ('temp-expense-id-' + Date.now()) as ExpenseIdT,
+      id: 'temp-expense' as ExpenseIdT,
       name: '',
       date: new Date().toISOString(),
       createdBy,

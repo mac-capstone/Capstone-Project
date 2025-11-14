@@ -20,7 +20,7 @@ export const ExpenseCard = ({ id, config }: Props) => {
   const router = useRouter();
 
   const { data, isPending, isError } = useExpense({
-    variables: { id },
+    variables: id,
   });
   if (isPending) {
     return <ActivityIndicator />;

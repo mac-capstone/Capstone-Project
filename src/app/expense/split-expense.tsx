@@ -2,47 +2,42 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { FlashList } from '@shopify/flash-list';
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 
+import { queryClient } from '@/api/common/api-provider';
+import { useExpense } from '@/api/expenses/use-expenses';
 import { AddRemovePerson } from '@/components/add-remove-person';
 import { CompactItemCard } from '@/components/compact-item-card';
 import ExpenseCreationFooter from '@/components/expense-creation-footer';
-import { ItemCardDetailedCustom } from '@/components/item-card-detailed';
+import { ItemCardDetailed } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
 import { useThemeConfig } from '@/lib/use-theme-config';
-import { type ExpenseIdT, type ItemWithId } from '@/types';
+import { type ExpenseIdT } from '@/types';
+
+const TEMP_EXPENSE_ID = 'temp-expense' as ExpenseIdT;
 
 export default function SplitExpense() {
   const theme = useThemeConfig();
-  const tempExpense = useExpenseCreation.use.tempExpense();
+  const {
+    data: tempExpense,
+    isPending,
+    isError,
+  } = useExpense({
+    variables: TEMP_EXPENSE_ID,
+  });
   const hydrate = useExpenseCreation.use.hydrate();
-  const [selectedItem, setSelectedItem] = useState<ItemWithId | null>(
-    tempExpense?.items[0] || null
+  const [selectedItemId, setSelectedItemId] = useState(
+    tempExpense?.items?.[0]?.id
   );
 
   useEffect(() => {
     if (!tempExpense) {
       hydrate();
-    } else if (tempExpense.items.length > 0 && !selectedItem) {
-      setSelectedItem(tempExpense.items[0]);
+    } else {
+      setSelectedItemId(tempExpense.items?.[0]?.id);
     }
-  }, [tempExpense, hydrate, selectedItem]);
-
-  useEffect(() => {
-    if (!tempExpense || !selectedItem) return;
-
-    const updatedItem = tempExpense.items.find((i) => i.id === selectedItem.id);
-
-    if (updatedItem && updatedItem !== selectedItem) {
-      setSelectedItem(updatedItem);
-    }
-  }, [tempExpense, selectedItem]);
-
-  if (!tempExpense) {
-    return <ActivityIndicator />;
-  }
-
-  const selectedPeople = tempExpense.people;
+  }, [tempExpense, hydrate]);
 
   return (
     <>
@@ -57,8 +52,23 @@ export default function SplitExpense() {
           headerLeft: () => (
             <Pressable
               onPress={() => {
-                clearTempExpense();
-                router.replace('/');
+                Alert.alert(
+                  'Unsaved Changes',
+                  'You have unsaved changes. Are you sure you want to leave?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Leave',
+                      onPress: () => {
+                        clearTempExpense();
+                        queryClient.invalidateQueries({
+                          queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+                        });
+                        router.replace('/');
+                      },
+                    },
+                  ]
+                );
               }}
             >
               <Octicons
@@ -71,23 +81,24 @@ export default function SplitExpense() {
           ),
         }}
       />
-      <View className="flex-1 px-4">
-        <Text className="font-futuraBold text-4xl dark:text-text-50">
-          {tempExpense.name}
-        </Text>
-
-        {tempExpense.items.length > 0 ? (
-          <>
-            {selectedItem && (
-              <View className="pt-4">
-                <ItemCardDetailedCustom
-                  item={selectedItem}
-                  people={selectedPeople}
-                  expenseId={tempExpense.id as ExpenseIdT}
-                />
-              </View>
-            )}
-
+      {isPending || !tempExpense || !selectedItemId ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator />
+        </View>
+      ) : isError ? (
+        <View className="flex-1 items-center justify-center">
+          <Text>Error loading temp expense</Text>
+        </View>
+      ) : selectedItemId ? (
+        <View className="flex-1 px-4">
+          <Text className="font-futuraBold text-4xl dark:text-text-50">
+            {tempExpense.name}
+          </Text>
+          <View className="flex min-w-max items-center justify-center pt-3">
+            <ItemCardDetailed
+              expenseId={tempExpense.id as ExpenseIdT}
+              itemId={selectedItemId}
+            />
             <View className="flex-1 pt-4">
               <FlashList
                 data={tempExpense.items}
@@ -95,29 +106,23 @@ export default function SplitExpense() {
                   <CompactItemCard
                     item={item}
                     expenseId={tempExpense.id as ExpenseIdT}
-                    onPress={setSelectedItem}
-                    selected={selectedItem?.id === item.id}
+                    onPress={() => setSelectedItemId(item.id)}
+                    selected={selectedItemId === item.id}
                   />
                 )}
                 keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => <View className="h-3" />}
               />
             </View>
-          </>
-        ) : (
-          <View className="flex-1 items-center justify-center pt-8">
-            <Text className="dark:text-text-400 text-lg">
-              No items added yet
-            </Text>
           </View>
-        )}
-      </View>
-      <AddRemovePerson item={selectedItem} expenseId={tempExpense.id} />
-      <ExpenseCreationFooter
-        totalAmount={tempExpense.totalAmount}
-        onPreviousPress={() => router.push('/expense/add-expense')}
-        onNextPress={() => router.push('/expense/confirm-expense')}
-      />
+          <AddRemovePerson item={selectedItemId} expenseId={tempExpense.id} />
+          <ExpenseCreationFooter
+            totalAmount={tempExpense.totalAmount}
+            onPreviousPress={() => router.push('/expense/add-expense')}
+            onNextPress={() => router.push('/expense/confirm-expense')}
+          />
+        </View>
+      ) : null}
     </>
   );
 }
