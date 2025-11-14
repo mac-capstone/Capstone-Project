@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import { useExpenseCreation } from '@/lib/store';
-import { type PersonIdT, type PersonWithId } from '@/types';
+import {
+  type ExpenseIdT,
+  type ItemWithId,
+  type PersonIdT,
+  type PersonWithId,
+} from '@/types';
 
 import { PersonAvatar } from './person-avatar';
 
-export const AddRemovePerson = () => {
-  const { tempExpense, addPerson, removePerson } = useExpenseCreation();
-  const [selectedPeopleIds, setSelectedPeopleIds] = useState<PersonIdT[]>([]);
+type Props = {
+  item: ItemWithId;
+  expenseId: ExpenseIdT;
+};
 
-  const toggleSelection = (personId: PersonIdT) => {
-    setSelectedPeopleIds((prev) =>
-      prev.includes(personId)
-        ? prev.filter((id) => id !== personId)
-        : [...prev, personId]
-    );
-  };
+export const AddRemovePerson = ({ item, expenseId }: Props) => {
+  const {
+    tempExpense,
+    assignPersonToItem,
+    addPerson,
+    removePersonFromItem,
+    removePerson,
+  } = useExpenseCreation();
 
   const handleAddPerson = () => {
     if (!tempExpense) return;
@@ -31,29 +38,37 @@ export const AddRemovePerson = () => {
   };
 
   const handleRemove = () => {
-    selectedPeopleIds.forEach((personId) => removePerson(personId));
-    setSelectedPeopleIds([]);
+    if (!tempExpense) return;
+    const selectedPeopleIds = item.assignedPersonIds;
+    selectedPeopleIds.forEach((personId) => {
+      removePersonFromItem(item.id, personId);
+      removePerson(personId);
+    });
   };
 
   const people = tempExpense?.people ?? [];
+  const assignedPeopleIds = item?.assignedPersonIds ?? [];
 
   return (
     <View className="bg-transparent p-4">
-      <Text className="pb-2 text-sm text-gray-400">Tap to add/remove</Text>
+      <Text className="pb-2 text-sm text-gray-400">
+        {item ? 'Tap to assign to item' : 'Select an item to assign people'}
+      </Text>
       <View className="flex-row items-center pb-4">
         {people.map((person) => (
           <TouchableOpacity
             key={person.id}
-            onPress={() => toggleSelection(person.id)}
+            onPress={() => assignPersonToItem(item.id, person.id)}
             className="pr-2"
             activeOpacity={1}
+            disabled={!item}
           >
             <PersonAvatar
               size="lg"
               personId={person.id}
-              expenseId={tempExpense!.id}
+              expenseId={expenseId}
             />
-            {selectedPeopleIds.includes(person.id) && (
+            {item && assignedPeopleIds.includes(person.id) && (
               // TODO: @Hadi1723 replace with a better checkmark UI
               <View className="absolute right-0 top-0 size-4 items-center justify-center rounded-full border-2 border-black bg-green-500">
                 <Text className="text-xs text-white">✓</Text>
@@ -74,11 +89,11 @@ export const AddRemovePerson = () => {
         <TouchableOpacity
           className="flex-2 ml-2 items-center rounded-lg bg-gray-800 px-6 py-3"
           onPress={handleRemove}
-          disabled={selectedPeopleIds.length === 0}
+          disabled={item.assignedPersonIds.length === 0}
         >
           <Text
             className={`font-bold ${
-              selectedPeopleIds.length > 0 ? 'text-white' : 'text-gray-500'
+              item.assignedPersonIds.length > 0 ? 'text-white' : 'text-gray-500'
             }`}
           >
             - Remove

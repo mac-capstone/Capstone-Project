@@ -28,6 +28,16 @@ export default function SplitExpense() {
     }
   }, [tempExpense, hydrate, selectedItem]);
 
+  useEffect(() => {
+    if (!tempExpense || !selectedItem) return;
+
+    const updatedItem = tempExpense.items.find((i) => i.id === selectedItem.id);
+
+    if (updatedItem && updatedItem !== selectedItem) {
+      setSelectedItem(updatedItem);
+    }
+  }, [tempExpense, selectedItem]);
+
   if (!tempExpense) {
     return <ActivityIndicator />;
   }
@@ -102,7 +112,7 @@ export default function SplitExpense() {
           </View>
         )}
       </View>
-      <AddRemovePerson />
+      <AddRemovePerson item={selectedItem} expenseId={tempExpense.id} />
       <ExpenseCreationFooter
         totalAmount={tempExpense.totalAmount}
         onPreviousPress={() => router.push('/expense/add-expense')}
