@@ -2,7 +2,7 @@ import { FlashList } from '@shopify/flash-list';
 import React from 'react';
 
 import { usePersonItems } from '@/api/items/use-person-items';
-import { usePerson } from '@/api/people/use-person';
+import { usePerson } from '@/api/people/use-people';
 import { ActivityIndicator, Text, View } from '@/components/ui';
 import { personShare } from '@/lib/utils';
 import { type ExpenseIdT, type PersonIdT } from '@/types';

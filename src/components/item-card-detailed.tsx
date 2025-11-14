@@ -1,11 +1,14 @@
 import { AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
+import { useExpense } from '@/api/expenses/use-expenses';
+import { useItem } from '@/api/items/use-items';
+import { usePeopleIdsForItem } from '@/api/people/use-people';
 import { useExpenseCreation } from '@/lib/store';
 import {
   type ExpenseIdT,
-  type ItemWithId,
+  type ItemIdT,
   type PersonIdT,
   type PersonWithId,
 } from '@/types';
@@ -14,35 +17,67 @@ import { PersonAvatar } from './person-avatar';
 import { Button } from './ui/button';
 
 type Props = {
-  item: ItemWithId;
-  people: PersonWithId[];
   expenseId: ExpenseIdT;
+  itemId: ItemIdT;
 };
 
-export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
+export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
   const [splitMode, setSplitMode] = useState<'equal' | 'custom'>('equal');
   const updateItemShare = useExpenseCreation.use.updateItemShare();
 
   const {
-    id: itemId,
-    name: itemName,
-    amount: itemPrice,
-    assignedPersonIds,
-  } = item;
+    data: item,
+    isPending: isItemPending,
+    isError: isItemError,
+  } = useItem({
+    variables: { expenseId, itemId },
+  });
+
+  const {
+    data: assignedPersonIds,
+    isPending: isAssignedIdsPending,
+    isError: isAssignedIdsError,
+  } = usePeopleIdsForItem({
+    variables: { expenseId, itemId },
+  });
+
+  const {
+    data: expense,
+    isPending: isExpensePending,
+    isError: isExpenseError,
+  } = useExpense({
+    variables: expenseId,
+  });
+
+  const isPending = isItemPending || isAssignedIdsPending || isExpensePending;
+  const isError = isItemError || isAssignedIdsError || isExpenseError;
 
   useEffect(() => {
-    if (splitMode === 'equal') {
+    if (
+      splitMode === 'equal' &&
+      assignedPersonIds &&
+      assignedPersonIds.length > 0
+    ) {
       assignedPersonIds.forEach((personId) => {
         updateItemShare(itemId, personId, 1);
       });
     }
   }, [splitMode, assignedPersonIds, itemId, updateItemShare]);
 
-  if (!item) {
-    return null;
+  if (isPending) {
+    return <ActivityIndicator />;
   }
 
-  const assignedPeople = people.filter((p) => assignedPersonIds.includes(p.id));
+  if (isError) {
+    return <Text>Error loading item</Text>;
+  }
+
+  const { name: itemName, amount: itemPrice } = item;
+  const people = expense.people; // never undefined as we use temp expenses which has people
+
+  const assignedPeople = people?.filter((p: PersonWithId) =>
+    assignedPersonIds.includes(p.id)
+  );
 
   const totalShares = Object.values(item.split.shares).reduce(
     (acc, share) => acc + share,
@@ -61,7 +96,7 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
     updateItemShare(itemId, personId, newShare);
   };
 
-  const participants = assignedPeople.map((person) => {
+  const participants = assignedPeople?.map((person: PersonWithId) => {
     const share = item.split.shares[person.id] || 0;
     const price = totalShares > 0 ? (itemPrice / totalShares) * share : 0;
     return {
@@ -77,7 +112,7 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
           <View className="flex-row">
-            {assignedPeople.map((person, index) => (
+            {assignedPeople?.map((person: PersonWithId, index: number) => (
               <View
                 key={person.id}
                 style={{
@@ -92,7 +127,7 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
               </View>
             ))}
           </View>
-          {assignedPeople.length > 0 && (
+          {assignedPeople?.length && assignedPeople.length > 0 && (
             <Pressable className="ml-3">
               <AntDesign name="close" size={12} color="red" />
             </Pressable>
@@ -121,35 +156,40 @@ export const ItemCardDetailedCustom = ({ item, people, expenseId }: Props) => {
       {/* Participants */}
       <View className="pt-4">
         {splitMode === 'custom' &&
-          participants.map((participant, index) => {
-            if (!participant) {
-              return null;
-            }
-            return (
-              <View
-                key={index}
-                className="flex-row items-center justify-between py-2"
-              >
-                <Text className="text-lg text-white">{participant.name}</Text>
-                <View className="flex-row items-center p-1">
-                  <Pressable onPress={() => handleDecrease(participant.id)}>
-                    <AntDesign name="minus" size={16} color="white" />
-                  </Pressable>
-                  <View className="mx-4 min-h-8 min-w-8 items-center justify-center rounded-md bg-white px-2 py-1">
-                    <Text className="text-md font-bold text-black">
-                      {participant.quantity}
+          participants?.map(
+            (
+              participant: PersonWithId & { quantity: number; price: string },
+              index: number
+            ) => {
+              if (!participant) {
+                return null;
+              }
+              return (
+                <View
+                  key={index}
+                  className="flex-row items-center justify-between py-2"
+                >
+                  <Text className="text-lg text-white">{participant.name}</Text>
+                  <View className="flex-row items-center p-1">
+                    <Pressable onPress={() => handleDecrease(participant.id)}>
+                      <AntDesign name="minus" size={16} color="white" />
+                    </Pressable>
+                    <View className="mx-4 min-h-8 min-w-8 items-center justify-center rounded-md bg-white px-2 py-1">
+                      <Text className="text-md font-bold text-black">
+                        {participant.quantity}
+                      </Text>
+                    </View>
+                    <Pressable onPress={() => handleIncrease(participant.id)}>
+                      <AntDesign name="plus" size={16} color="white" />
+                    </Pressable>
+                    <Text className="ml-5 w-16 text-right text-lg text-white">
+                      {participant.price}
                     </Text>
                   </View>
-                  <Pressable onPress={() => handleIncrease(participant.id)}>
-                    <AntDesign name="plus" size={16} color="white" />
-                  </Pressable>
-                  <Text className="ml-5 w-16 text-right text-lg text-white">
-                    {participant.price}
-                  </Text>
                 </View>
-              </View>
-            );
-          })}
+              );
+            }
+          )}
       </View>
     </View>
   );
