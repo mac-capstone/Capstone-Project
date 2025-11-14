@@ -1,20 +1,44 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { type ItemWithId } from '@/types';
+import { useItem } from '@/api/items/use-items';
+import { ActivityIndicator } from '@/components/ui';
+import { type ExpenseIdT, type ItemIdT } from '@/types';
 
 type Props = {
-  item: ItemWithId;
-  onPress?: (item: ItemWithId) => void;
+  itemId: ItemIdT;
+  expenseId: ExpenseIdT;
+  onPress?: (itemId: ItemIdT) => void;
   selected?: boolean;
 };
 
-export function CompactItemCard({ item, onPress, selected }: Props) {
+export function CompactItemCard({
+  itemId,
+  expenseId,
+  onPress,
+  selected,
+}: Props) {
+  const {
+    data: item,
+    isPending,
+    isError,
+  } = useItem({
+    variables: { expenseId, itemId },
+  });
+
+  if (isPending) {
+    return <ActivityIndicator />;
+  }
+
+  if (isError || !item) {
+    return null;
+  }
+
   const { name: itemName, amount: itemPrice } = item;
 
   return (
     <Pressable
-      onPress={() => onPress?.(item)}
+      onPress={() => onPress?.(itemId)}
       className={`w-full flex-row items-center justify-between rounded-xl border p-6 ${
         selected
           ? 'border-accent-100 bg-accent-900'
