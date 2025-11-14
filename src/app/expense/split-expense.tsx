@@ -3,7 +3,9 @@ import { FlashList } from '@shopify/flash-list';
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 
+import { AddRemovePerson } from '@/components/add-remove-person';
 import { CompactItemCard } from '@/components/compact-item-card';
+import ExpenseCreationFooter from '@/components/expense-creation-footer';
 import { ItemCardDetailedCustom } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
@@ -100,6 +102,12 @@ export default function SplitExpense() {
           </View>
         )}
       </View>
+      <AddRemovePerson />
+      <ExpenseCreationFooter
+        totalAmount={tempExpense.totalAmount}
+        onPreviousPress={() => router.push('/expense/add-expense')}
+        onNextPress={() => router.push('/expense/confirm-expense')}
+      />
     </>
   );
 }

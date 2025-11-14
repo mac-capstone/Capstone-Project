@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import { create } from 'zustand';
 
 import {
@@ -35,6 +36,8 @@ interface ExpenseCreationState {
     personId: PersonIdT,
     newShare: number
   ) => void;
+  addPerson: (person: PersonWithId) => void;
+  removePerson: (personId: PersonIdT) => void;
   clearTempExpense: () => void;
   initializeTempExpense: (createdBy: UserIdT) => void;
   hydrate: () => void;
@@ -167,6 +170,36 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
       const updated = {
         ...current,
         items: updatedItems,
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  addPerson: (person) => {
+    const current = get().tempExpense;
+    if (current) {
+      // Avoid adding duplicates
+      if (current.people.find((p) => p.id === person.id)) {
+        return;
+      }
+      const updated = {
+        ...current,
+        people: [...current.people, person],
+        participantCount: current.people.length + 1,
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  removePerson: (personId) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = {
+        ...current,
+        people: current.people.filter((p) => p.id !== personId),
+        participantCount: current.people.length - 1,
       };
       set({ tempExpense: updated });
       setTempExpense(updated);
