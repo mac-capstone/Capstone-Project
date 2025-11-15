@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
+import { queryClient } from '@/api/common/api-provider';
 import { useExpenseCreation } from '@/lib/store';
 import {
   type ExpenseIdT,
@@ -36,6 +37,9 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
       subtotal: 0,
     };
     addPerson(newPerson);
+    queryClient.invalidateQueries({
+      queryKey: ['expenses', 'expenseId', expenseId],
+    });
   };
 
   const handleRemove = () => {
@@ -44,6 +48,15 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
     selectedPeopleIds.forEach((personId) => {
       removePersonFromItem(itemID, personId);
       removePerson(personId);
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['expenses', 'expenseId', expenseId],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['items'],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['people'],
     });
   };
 
@@ -59,7 +72,15 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
         {people.map((person) => (
           <TouchableOpacity
             key={person.id}
-            onPress={() => assignPersonToItem(itemID, person.id)}
+            onPress={() => {
+              assignPersonToItem(itemID, person.id);
+              queryClient.invalidateQueries({
+                queryKey: ['items'],
+              });
+              queryClient.invalidateQueries({
+                queryKey: ['people'],
+              });
+            }}
             className="pr-2"
             activeOpacity={1}
             disabled={!itemID}

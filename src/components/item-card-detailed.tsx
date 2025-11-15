@@ -2,6 +2,7 @@ import { AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
+import { queryClient } from '@/api/common/api-provider';
 import { useExpense } from '@/api/expenses/use-expenses';
 import { useItem } from '@/api/items/use-items';
 import { usePeopleIdsForItem } from '@/api/people/use-people';
@@ -62,8 +63,11 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
       assignedPersonIds.forEach((personId) => {
         updateItemShare(itemId, personId, 1);
       });
+      queryClient.invalidateQueries({
+        queryKey: ['items'],
+      });
     }
-  }, [splitMode, assignedPersonIds, itemId, updateItemShare]);
+  }, [splitMode, assignedPersonIds, itemId, updateItemShare, expenseId]);
 
   if (isPending) {
     return <ActivityIndicator />;
@@ -96,12 +100,18 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat((currentShare + 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
+    queryClient.invalidateQueries({
+      queryKey: ['items'],
+    });
   };
 
   const handleDecrease = (personId: PersonIdT) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat(Math.max(0, currentShare - 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
+    queryClient.invalidateQueries({
+      queryKey: ['items'],
+    });
   };
 
   const participants = assignedPeople.map((person: PersonWithId) => {
@@ -141,6 +151,12 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
               onPress={() => {
                 assignedPeople.forEach((person) => {
                   removePersonFromItem(itemId, person.id);
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ['items'],
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ['people'],
                 });
               }}
             >
