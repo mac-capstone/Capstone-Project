@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 import { useExpenseCreation } from '@/lib/store';
 import {
@@ -9,6 +9,7 @@ import {
   type PersonWithId,
 } from '@/types';
 
+import CheckIcon from '../../assets/check-green-icon.png';
 import { PersonAvatar } from './person-avatar';
 
 type Props = {
@@ -71,8 +72,16 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
             />
             {itemID && assignedPeopleIds.includes(person.id) && (
               // TODO: @Hadi1723 replace with a checkmark UI
-              <View>
-                <Text>✓</Text>
+              <View className="absolute -bottom-1 -right-1 size-4 items-center justify-center rounded-full border border-black bg-green-500">
+                <Image
+                  source={CheckIcon} // or require('path/to/file.png')
+                  style={{
+                    width: 10,
+                    height: 10,
+                    tintColor: 'black', // optional: recolor the image
+                    resizeMode: 'contain',
+                  }}
+                />
               </View>
             )}
           </TouchableOpacity>
