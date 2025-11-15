@@ -72,14 +72,12 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
             />
             {itemID && assignedPeopleIds.includes(person.id) && (
               // TODO: @Hadi1723 replace with a checkmark UI
-              <View className="absolute -bottom-1 -right-1 size-4 items-center justify-center rounded-full border border-black bg-green-500">
+              <View className="flex-row justify-between pb-4">
                 <Image
-                  source={CheckIcon} // or require('path/to/file.png')
+                  source={CheckIcon}
                   style={{
                     width: 10,
                     height: 10,
-                    tintColor: 'black', // optional: recolor the image
-                    resizeMode: 'contain',
                   }}
                 />
               </View>
