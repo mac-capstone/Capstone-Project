@@ -1,7 +1,10 @@
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { v4 as uuidv4 } from 'uuid';
 
 import { queryClient } from '@/api/common/api-provider';
+import { useExpense } from '@/api/expenses/use-expenses';
+import { colors } from '@/components/ui';
 import { useExpenseCreation } from '@/lib/store';
 import {
   type ExpenseIdT,
@@ -17,22 +20,40 @@ type Props = {
   expenseId: ExpenseIdT;
 };
 
+const TEMP_EXPENSE_ID: ExpenseIdT = 'temp-expense' as ExpenseIdT;
+
 export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
   const {
-    tempExpense,
+    data: tempExpense,
+    isPending,
+    isError,
+  } = useExpense({
+    variables: TEMP_EXPENSE_ID,
+  });
+
+  const {
     assignPersonToItem,
     getItemPaersonIds,
-    addPerson,
     removePersonFromItem,
+    addPerson,
     removePerson,
   } = useExpenseCreation();
 
+  if (isPending) {
+    return <ActivityIndicator />;
+  }
+
+  if (isError) {
+    return <Text>Error loading temp expense</Text>;
+  }
+
   const handleAddPerson = () => {
-    if (!tempExpense) return;
+    const peopleArray = tempExpense?.people || [];
+    const avatarColors = Object.values(colors.avatar);
     const newPerson: PersonWithId = {
-      id: `person-${Date.now()}` as PersonIdT,
-      name: `Person ${tempExpense.people.length + 1}`,
-      color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      id: uuidv4() as PersonIdT,
+      name: `Person ${peopleArray.length + 1}`,
+      color: avatarColors[peopleArray.length % avatarColors.length],
       userRef: null,
       subtotal: 0,
     };
