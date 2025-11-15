@@ -87,6 +87,7 @@ module.exports = {
   accent: {
     100: '#00DBC5',
     800: '#128075',
+    900: '#162221',
   },
   avatar: {
     red: '#C10007',

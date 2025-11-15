@@ -1,10 +1,14 @@
 import Octicons from '@expo/vector-icons/Octicons';
+import { FlashList } from '@shopify/flash-list';
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 import { queryClient } from '@/api/common/api-provider';
 import { useExpense } from '@/api/expenses/use-expenses';
+import { AddRemovePerson } from '@/components/add-remove-person';
+import { CompactItemCard } from '@/components/compact-item-card';
+import ExpenseCreationFooter from '@/components/expense-creation-footer';
 import { ItemCardDetailed } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
@@ -90,12 +94,41 @@ export default function SplitExpense() {
           <Text className="font-futuraBold text-4xl dark:text-text-50">
             {tempExpense.name}
           </Text>
-          <View className="flex min-w-max items-center justify-center pt-3">
-            <ItemCardDetailed
-              expenseId={tempExpense.id as ExpenseIdT}
-              itemId={selectedItemId}
+
+          {selectedItemId && (
+            <View className="pt-4">
+              <ItemCardDetailed
+                expenseId={tempExpense.id as ExpenseIdT}
+                itemId={selectedItemId}
+              />
+            </View>
+          )}
+
+          <View className="flex-1 pt-4">
+            <FlashList
+              data={tempExpense.items}
+              renderItem={({ item }) => (
+                <CompactItemCard
+                  itemId={item.id}
+                  expenseId={tempExpense.id as ExpenseIdT}
+                  onPress={setSelectedItemId}
+                  selected={selectedItemId === item.id}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+              ItemSeparatorComponent={() => <View className="h-3" />}
             />
           </View>
+
+          <AddRemovePerson
+            itemID={selectedItemId}
+            expenseId={tempExpense.id as ExpenseIdT}
+          />
+          <ExpenseCreationFooter
+            totalAmount={tempExpense.totalAmount}
+            onPreviousPress={() => router.push('/expense/add-expense')}
+            onNextPress={() => router.push('/expense/confirm-expense')}
+          />
         </View>
       ) : null}
     </>

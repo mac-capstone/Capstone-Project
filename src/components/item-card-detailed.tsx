@@ -24,6 +24,7 @@ type Props = {
 export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
   const [splitMode, setSplitMode] = useState<'equal' | 'custom'>('equal');
   const updateItemShare = useExpenseCreation.use.updateItemShare();
+  const removePersonFromItem = useExpenseCreation.use.removePersonFromItem();
 
   const {
     data: item,
@@ -135,7 +136,14 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
             ))}
           </View>
           {assignedPeople.length > 0 && (
-            <Pressable className="ml-3">
+            <Pressable
+              className="ml-3"
+              onPress={() => {
+                assignedPeople.forEach((person) => {
+                  removePersonFromItem(itemId, person.id);
+                });
+              }}
+            >
               <AntDesign name="close" size={12} color="red" />
             </Pressable>
           )}
