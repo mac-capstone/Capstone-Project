@@ -90,36 +90,37 @@ export default function SplitExpense() {
           <Text>Error loading temp expense</Text>
         </View>
       ) : selectedItemId ? (
-        <View className="flex-1 px-4">
-          <Text className="font-futuraBold text-4xl dark:text-text-50">
-            {tempExpense.name}
-          </Text>
+        <>
+          <View className="flex-1 px-4">
+            <Text className="font-futuraBold text-4xl dark:text-text-50">
+              {tempExpense.name}
+            </Text>
 
-          {selectedItemId && (
-            <View className="pt-4">
-              <ItemCardDetailed
-                expenseId={tempExpense.id as ExpenseIdT}
-                itemId={selectedItemId}
+            {selectedItemId && (
+              <View className="pt-4">
+                <ItemCardDetailed
+                  expenseId={tempExpense.id as ExpenseIdT}
+                  itemId={selectedItemId}
+                />
+              </View>
+            )}
+
+            <View className="flex-1 pt-4">
+              <FlashList
+                data={tempExpense.items}
+                renderItem={({ item }) => (
+                  <CompactItemCard
+                    itemId={item.id}
+                    expenseId={tempExpense.id as ExpenseIdT}
+                    onPress={setSelectedItemId}
+                    selected={selectedItemId === item.id}
+                  />
+                )}
+                keyExtractor={(item) => item.id}
+                ItemSeparatorComponent={() => <View className="h-3" />}
               />
             </View>
-          )}
-
-          <View className="flex-1 pt-4">
-            <FlashList
-              data={tempExpense.items}
-              renderItem={({ item }) => (
-                <CompactItemCard
-                  itemId={item.id}
-                  expenseId={tempExpense.id as ExpenseIdT}
-                  onPress={setSelectedItemId}
-                  selected={selectedItemId === item.id}
-                />
-              )}
-              keyExtractor={(item) => item.id}
-              ItemSeparatorComponent={() => <View className="h-3" />}
-            />
           </View>
-
           <AddRemovePerson
             itemID={selectedItemId}
             expenseId={tempExpense.id as ExpenseIdT}
@@ -129,7 +130,7 @@ export default function SplitExpense() {
             onPreviousPress={() => router.push('/expense/add-expense')}
             onNextPress={() => router.push('/expense/confirm-expense')}
           />
-        </View>
+        </>
       ) : null}
     </>
   );

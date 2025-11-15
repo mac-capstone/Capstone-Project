@@ -20,7 +20,14 @@ export const usePeopleIdsForItem = createQuery<
     if (expenseId === 'temp-expense') {
       const tempExpense = getTempExpense();
       if (!tempExpense) throw new Error('Temp expense not found');
-      return tempExpense.people.map((person) => person.id as PersonIdT);
+      // Go into items, find the item with itemId, and return its assignedPersonIds
+      const item = tempExpense.items.find((i) => i.id === itemId);
+      if (!item) return [];
+      return (
+        item.assignedPersonIds ||
+        (Object.keys(item.split.shares) as PersonIdT[]) ||
+        []
+      );
     }
     const expense = mockData.expenses.find((e) => e.id === expenseId);
     if (!expense) throw new Error('Expense not found');
