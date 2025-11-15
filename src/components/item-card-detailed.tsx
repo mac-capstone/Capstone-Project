@@ -134,7 +134,13 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     <View className="w-full overflow-hidden rounded-xl bg-neutral-800 p-4 shadow-lg">
       {/* Top section */}
       <View className="flex-row items-center justify-between">
-        <View className="w-9/12 flex-row items-center">
+        <View
+          className={
+            splitMode === 'equal'
+              ? 'w-10/12 flex-row items-center'
+              : 'w-9/12 flex-row items-center'
+          }
+        >
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -155,25 +161,25 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
               </View>
             ))}
           </ScrollView>
+          {assignedPeople.length > 0 && (
+            <Pressable
+              className="ml-3"
+              onPress={() => {
+                assignedPeople.forEach((person) => {
+                  removePersonFromItem(itemId, person.id);
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ['items'],
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ['people'],
+                });
+              }}
+            >
+              <AntDesign name="close" size={12} color="red" />
+            </Pressable>
+          )}
         </View>
-        {assignedPeople.length > 0 && (
-          <Pressable
-            className="p-1"
-            onPress={() => {
-              assignedPeople.forEach((person) => {
-                removePersonFromItem(itemId, person.id);
-              });
-              queryClient.invalidateQueries({
-                queryKey: ['items'],
-              });
-              queryClient.invalidateQueries({
-                queryKey: ['people'],
-              });
-            }}
-          >
-            <AntDesign name="close" size={12} color="red" />
-          </Pressable>
-        )}
         <Button
           label={splitMode === 'equal' ? 'Equal' : '$ Custom'}
           variant="outline"
