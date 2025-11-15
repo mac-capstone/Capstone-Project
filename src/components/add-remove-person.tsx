@@ -49,7 +49,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
 
   const handleAddPerson = () => {
     const peopleArray = tempExpense?.people || [];
-    const avatarColors = Object.values(colors.avatar);
+    const avatarColors = Object.keys(colors.avatar || {});
     const newPerson: PersonWithId = {
       id: uuidv4() as PersonIdT,
       name: `Person ${peopleArray.length + 1}`,
