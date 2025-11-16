@@ -83,6 +83,7 @@ module.exports = {
   text: {
     50: '#D4D4D4',
     800: '#A4A4A4',
+    900: '#383838',
   },
   accent: {
     100: '#00DBC5',

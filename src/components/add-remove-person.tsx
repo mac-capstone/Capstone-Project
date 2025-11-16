@@ -131,14 +131,14 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
 
       <View className="flex-row justify-between pb-4">
         <TouchableOpacity
-          className="mr-2 flex-1 items-center rounded-lg bg-gray-800 py-3"
+          className="bg-background-800 mr-2 flex-1 items-center rounded-lg border border-text-900 py-3"
           onPress={handleAddPerson}
           activeOpacity={1}
         >
           <Text className="font-bold text-white">+ Add person</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-2 ml-2 items-center rounded-lg bg-gray-800 px-6 py-3"
+          className="flex-2 bg-background-800 ml-2 items-center rounded-lg border border-text-900 px-6 py-3"
           onPress={handleRemove}
           disabled={assignedPeopleIds.length === 0}
         >
