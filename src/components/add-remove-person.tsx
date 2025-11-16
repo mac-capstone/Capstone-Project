@@ -90,35 +90,43 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
         {itemID ? 'Tap to assign to item' : 'Select an item to assign people'}
       </Text>
       <View className="flex-row items-center pb-4">
-        {people.map((person) => (
-          <TouchableOpacity
-            key={person.id}
-            onPress={() => {
-              assignPersonToItem(itemID, person.id);
-              queryClient.invalidateQueries({
-                queryKey: ['items'],
-              });
-              queryClient.invalidateQueries({
-                queryKey: ['people'],
-              });
-            }}
-            className="pr-2"
-            activeOpacity={1}
-            disabled={!itemID}
-          >
-            <PersonAvatar
-              size="lg"
-              personId={person.id}
-              expenseId={expenseId}
-            />
-            {itemID && assignedPeopleIds.includes(person.id) && (
-              // TODO: @Hadi1723 replace with a checkmark UI
-              <View>
-                <Text>✓</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        ))}
+        {people.map((person) => {
+          const isAssigned = itemID && assignedPeopleIds.includes(person.id);
+          return (
+            <TouchableOpacity
+              key={person.id}
+              onPress={() => {
+                if (!itemID) return;
+                if (isAssigned) {
+                  removePersonFromItem(itemID, person.id);
+                } else {
+                  assignPersonToItem(itemID, person.id);
+                }
+                queryClient.invalidateQueries({
+                  queryKey: ['items'],
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ['people'],
+                });
+              }}
+              className="pr-2"
+              activeOpacity={1}
+              disabled={!itemID}
+            >
+              <PersonAvatar
+                size="lg"
+                personId={person.id}
+                expenseId={expenseId}
+              />
+              {isAssigned && (
+                // TODO: @Hadi1723 replace with a checkmark UI
+                <View>
+                  <Text>✓</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       <View className="flex-row justify-between pb-4">
