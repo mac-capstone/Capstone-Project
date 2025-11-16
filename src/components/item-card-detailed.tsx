@@ -150,7 +150,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
               <View
                 key={person.id}
                 style={{
-                  marginLeft: index > 0 ? 5 : 0,
+                  marginLeft: index > 0 ? -10 : 0,
                 }}
               >
                 <PersonAvatar
