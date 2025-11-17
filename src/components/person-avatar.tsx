@@ -1,5 +1,6 @@
 import Octicons from '@expo/vector-icons/Octicons';
 import { ActivityIndicator } from 'react-native';
+import { Circle, Path, Svg } from 'react-native-svg';
 
 import { usePerson } from '@/api/people/use-people';
 import { colors, Text, View } from '@/components/ui';
@@ -28,12 +29,16 @@ export const PersonAvatar = ({
   const avatarColor =
     colors.avatar?.[data.color as keyof typeof colors.avatar] ??
     colors.avatar.white;
+
+  const checkmarkSize = size === 'sm' ? 10 : size === 'md' ? 14 : 18;
+  const checkmarkCircleRadius = checkmarkSize / 2;
+  const checkmarkStrokeWidth = checkmarkSize * 0.1;
+
   return (
     <View
       className={cn(
-        'flex items-center justify-center overflow-hidden rounded-full',
-        size === 'sm' ? 'size-6' : size === 'md' ? 'size-8' : 'size-12',
-        isSelected ? 'border-2 border-blue-900' : ''
+        'flex items-center justify-center rounded-full relative',
+        size === 'sm' ? 'size-6' : size === 'md' ? 'size-8' : 'size-12'
       )}
       style={{ backgroundColor: avatarColor }}
     >
@@ -42,6 +47,34 @@ export const PersonAvatar = ({
         size={size === 'sm' ? 12 : size === 'md' ? 15 : 24}
         color="#F4F4F5"
       />
+      {isSelected && (
+        <View className="absolute -right-1 -top-1">
+          <Svg
+            width={checkmarkSize}
+            height={checkmarkSize}
+            viewBox={`0 0 ${checkmarkSize} ${checkmarkSize}`}
+          >
+            <Circle
+              cx={checkmarkCircleRadius}
+              cy={checkmarkCircleRadius}
+              r={checkmarkCircleRadius}
+              fill={
+                avatarColor === colors.avatar.white
+                  ? colors.avatar.red
+                  : colors.avatar.white
+              }
+            />
+            <Path
+              d={`M${checkmarkSize * 0.3} ${checkmarkSize * 0.5} L${checkmarkSize * 0.45} ${checkmarkSize * 0.65} L${checkmarkSize * 0.7} ${checkmarkSize * 0.4}`}
+              stroke={avatarColor}
+              strokeWidth={checkmarkStrokeWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </Svg>
+        </View>
+      )}
     </View>
   );
 };
