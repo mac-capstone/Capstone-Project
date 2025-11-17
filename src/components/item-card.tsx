@@ -91,12 +91,7 @@ export const ItemCard = ({
               {assignedPeople
                 .slice(0, 4)
                 .map((person: PersonWithId, index: number) => (
-                  <View
-                    key={person.id}
-                    style={{
-                      marginLeft: index > 0 ? -0.625 : 0, // -10px = -0.625rem
-                    }}
-                  >
+                  <View key={person.id} className={index > 0 ? '-ml-3' : ''}>
                     <PersonAvatar
                       personId={person.id}
                       expenseId={expenseId}

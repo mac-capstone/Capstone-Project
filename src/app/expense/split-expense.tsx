@@ -34,9 +34,6 @@ export default function SplitExpense() {
   useEffect(() => {
     if (!tempExpense) {
       hydrate();
-      queryClient.invalidateQueries({
-        queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
-      });
     } else {
       setSelectedItemId(tempExpense.items?.[0]?.id);
     }

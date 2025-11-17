@@ -106,6 +106,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat((currentShare + 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
+    // TODO: Invalidate more specific queries related to items
     queryClient.invalidateQueries({
       queryKey: ['items'],
     });
@@ -115,6 +116,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat(Math.max(0, currentShare - 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
+    // TODO: Invalidate more specific queries related to items
     queryClient.invalidateQueries({
       queryKey: ['items'],
     });
@@ -147,12 +149,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
             className="flex-row"
           >
             {assignedPeople.map((person: PersonWithId, index: number) => (
-              <View
-                key={person.id}
-                style={{
-                  marginLeft: index > 0 ? -10 : 0,
-                }}
-              >
+              <View key={person.id} className={index > 0 ? '-ml-3' : 'm-0'}>
                 <PersonAvatar
                   personId={person.id}
                   expenseId={expenseId}
@@ -168,6 +165,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
                 assignedPeople.forEach((person) => {
                   removePersonFromItem(itemId, person.id);
                 });
+                // TODO: Invalidate more specific queries related to people and items
                 queryClient.invalidateQueries({
                   queryKey: ['items'],
                 });
@@ -232,7 +230,13 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
                       <Pressable onPress={() => handleIncrease(participant.id)}>
                         <AntDesign name="plus" size={16} color="white" />
                       </Pressable>
-                      <Text className="ml-5 w-auto text-right text-lg text-white">
+                      <Text
+                        className={
+                          participant.price.length > 6
+                            ? 'ml-5 w-auto text-right text-lg text-white'
+                            : 'ml-5 w-20 text-right text-lg text-white'
+                        }
+                      >
                         {participant.price}
                       </Text>
                     </View>

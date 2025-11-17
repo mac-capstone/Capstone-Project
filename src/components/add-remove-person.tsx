@@ -21,6 +21,8 @@ type Props = {
   expenseId: ExpenseIdT;
 };
 
+const MAX_PEOPLE = 16;
+
 export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
   const {
     data: tempExpense,
@@ -37,8 +39,6 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
   } = usePeopleIdsForItem({
     variables: { expenseId, itemId: itemID },
   });
-
-  console.log('Assigned People IDs:', assignedPeopleIds);
 
   const { assignPersonToItem, removePersonFromItem, addPerson, removePerson } =
     useExpenseCreation();
@@ -75,18 +75,15 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
       removePerson(personId);
     });
     queryClient.invalidateQueries({
+      queryKey: ['people', 'expenseId', expenseId, 'itemId', itemID],
+    });
+    queryClient.invalidateQueries({
       queryKey: ['expenses', 'expenseId', expenseId],
-    });
-    queryClient.invalidateQueries({
-      queryKey: ['items'],
-    });
-    queryClient.invalidateQueries({
-      queryKey: ['people'],
     });
   };
 
   const people = tempExpense?.people ?? [];
-  const maxPeopleReached = people.length >= 16;
+  const maxPeopleReached = people.length >= MAX_PEOPLE;
 
   return (
     <View className="bg-transparent p-4">
@@ -106,6 +103,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
                 } else {
                   assignPersonToItem(itemID, person.id);
                 }
+                // TODO: Invalidate more specific queries related to people and items
                 queryClient.invalidateQueries({
                   queryKey: ['items'],
                 });
