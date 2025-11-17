@@ -35,6 +35,10 @@ interface ExpenseCreationState {
     personId: PersonIdT,
     newShare: number
   ) => void;
+  assignPersonToItem: (itemId: ItemIdT, personId: PersonIdT) => void;
+  removePersonFromItem: (itemId: ItemIdT, personId: PersonIdT) => void;
+  addPerson: (person: PersonWithId) => void;
+  removePerson: (personId: PersonIdT) => void;
   clearTempExpense: () => void;
   initializeTempExpense: (createdBy: UserIdT) => void;
   hydrate: () => void;
@@ -167,6 +171,84 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
       const updated = {
         ...current,
         items: updatedItems,
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  assignPersonToItem: (itemId, personId) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updatedItems = current.items.map((item) => {
+        if (item.id === itemId) {
+          const assignedPersonIds = [
+            ...(item.assignedPersonIds || []),
+            personId,
+          ];
+          const newShares = { ...item.split.shares, [personId]: 0 };
+          return {
+            ...item,
+            assignedPersonIds,
+            split: { ...item.split, shares: newShares },
+          };
+        }
+        return item;
+      });
+      const updated = { ...current, items: updatedItems };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  removePersonFromItem: (itemId, personId) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updatedItems = current.items.map((item) => {
+        if (item.id === itemId) {
+          const assignedPersonIds = (item.assignedPersonIds || []).filter(
+            (id) => id !== personId
+          );
+          const newShares = { ...item.split.shares };
+          delete newShares[personId];
+          return {
+            ...item,
+            assignedPersonIds,
+            split: { ...item.split, shares: newShares },
+          };
+        }
+        return item;
+      });
+      const updated = { ...current, items: updatedItems };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  addPerson: (person) => {
+    const current = get().tempExpense;
+    if (current) {
+      // Avoid adding duplicates
+      if (current.people.find((p) => p.id === person.id)) {
+        return;
+      }
+      const updated = {
+        ...current,
+        people: [...current.people, person],
+        participantCount: current.people.length + 1,
+      };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
+  },
+
+  removePerson: (personId) => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = {
+        ...current,
+        people: current.people.filter((p) => p.id !== personId),
+        participantCount: current.people.length - 1,
       };
       set({ tempExpense: updated });
       setTempExpense(updated);

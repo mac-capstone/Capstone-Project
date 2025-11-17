@@ -1,7 +1,14 @@
 import { AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 
+import { queryClient } from '@/api/common/api-provider';
 import { useExpense } from '@/api/expenses/use-expenses';
 import { useItem } from '@/api/items/use-items';
 import { usePeopleIdsForItem } from '@/api/people/use-people';
@@ -24,6 +31,7 @@ type Props = {
 export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
   const [splitMode, setSplitMode] = useState<'equal' | 'custom'>('equal');
   const updateItemShare = useExpenseCreation.use.updateItemShare();
+  const removePersonFromItem = useExpenseCreation.use.removePersonFromItem();
 
   const {
     data: item,
@@ -61,8 +69,11 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
       assignedPersonIds.forEach((personId) => {
         updateItemShare(itemId, personId, 1);
       });
+      queryClient.invalidateQueries({
+        queryKey: ['items'],
+      });
     }
-  }, [splitMode, assignedPersonIds, itemId, updateItemShare]);
+  }, [splitMode, assignedPersonIds, itemId, updateItemShare, expenseId]);
 
   if (isPending) {
     return <ActivityIndicator />;
@@ -95,12 +106,20 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat((currentShare + 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
+    // TODO: Invalidate more specific queries related to items
+    queryClient.invalidateQueries({
+      queryKey: ['items'],
+    });
   };
 
   const handleDecrease = (personId: PersonIdT) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat(Math.max(0, currentShare - 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
+    // TODO: Invalidate more specific queries related to items
+    queryClient.invalidateQueries({
+      queryKey: ['items'],
+    });
   };
 
   const participants = assignedPeople.map((person: PersonWithId) => {
@@ -117,15 +136,20 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     <View className="w-full overflow-hidden rounded-xl bg-neutral-800 p-4 shadow-lg">
       {/* Top section */}
       <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center">
-          <View className="flex-row">
+        <View
+          className={
+            splitMode === 'equal'
+              ? 'w-10/12 flex-row items-center'
+              : 'w-9/12 flex-row items-center'
+          }
+        >
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="flex-row"
+          >
             {assignedPeople.map((person: PersonWithId, index: number) => (
-              <View
-                key={person.id}
-                style={{
-                  marginLeft: index > 0 ? 5 : 0,
-                }}
-              >
+              <View key={person.id} className={index > 0 ? '-ml-3' : 'm-0'}>
                 <PersonAvatar
                   personId={person.id}
                   expenseId={expenseId}
@@ -133,9 +157,23 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
                 />
               </View>
             ))}
-          </View>
+          </ScrollView>
           {assignedPeople.length > 0 && (
-            <Pressable className="ml-3">
+            <Pressable
+              className="ml-3"
+              onPress={() => {
+                assignedPeople.forEach((person) => {
+                  removePersonFromItem(itemId, person.id);
+                });
+                // TODO: Invalidate more specific queries related to people and items
+                queryClient.invalidateQueries({
+                  queryKey: ['items'],
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ['people'],
+                });
+              }}
+            >
               <AntDesign name="close" size={12} color="red" />
             </Pressable>
           )}
@@ -162,42 +200,52 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
 
       {/* Participants */}
       <View className="pt-4">
-        {splitMode === 'custom' &&
-          participants.length > 0 &&
-          participants.map(
-            (
-              participant: PersonWithId & { quantity: number; price: string },
-              index: number
-            ) => {
-              if (!participant) {
-                return null;
-              }
-              return (
-                <View
-                  key={index}
-                  className="flex-row items-center justify-between py-2"
-                >
-                  <Text className="text-lg text-white">{participant.name}</Text>
-                  <View className="flex-row items-center p-1">
-                    <Pressable onPress={() => handleDecrease(participant.id)}>
-                      <AntDesign name="minus" size={16} color="white" />
-                    </Pressable>
-                    <View className="mx-4 min-h-8 min-w-8 items-center justify-center rounded-md bg-white px-2 py-1">
-                      <Text className="text-md font-bold text-black">
-                        {participant.quantity}
+        {splitMode === 'custom' && participants.length > 0 && (
+          <ScrollView className="max-h-40">
+            {participants.map(
+              (
+                participant: PersonWithId & { quantity: number; price: string },
+                index: number
+              ) => {
+                if (!participant) {
+                  return null;
+                }
+                return (
+                  <View
+                    key={index}
+                    className="flex-row items-center justify-between py-2"
+                  >
+                    <Text className="text-lg text-white">
+                      {participant.name}
+                    </Text>
+                    <View className="flex-row items-center p-1">
+                      <Pressable onPress={() => handleDecrease(participant.id)}>
+                        <AntDesign name="minus" size={16} color="white" />
+                      </Pressable>
+                      <View className="mx-4 min-h-8 min-w-8 items-center justify-center rounded-md bg-white px-2 py-1">
+                        <Text className="text-md font-bold text-black">
+                          {participant.quantity}
+                        </Text>
+                      </View>
+                      <Pressable onPress={() => handleIncrease(participant.id)}>
+                        <AntDesign name="plus" size={16} color="white" />
+                      </Pressable>
+                      <Text
+                        className={
+                          participant.price.length > 6
+                            ? 'ml-5 w-auto text-right text-lg text-white'
+                            : 'ml-5 w-20 text-right text-lg text-white'
+                        }
+                      >
+                        {participant.price}
                       </Text>
                     </View>
-                    <Pressable onPress={() => handleIncrease(participant.id)}>
-                      <AntDesign name="plus" size={16} color="white" />
-                    </Pressable>
-                    <Text className="ml-5 w-16 text-right text-lg text-white">
-                      {participant.price}
-                    </Text>
                   </View>
-                </View>
-              );
-            }
-          )}
+                );
+              }
+            )}
+          </ScrollView>
+        )}
       </View>
     </View>
   );

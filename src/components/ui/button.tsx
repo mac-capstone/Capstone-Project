@@ -24,7 +24,7 @@ const button = tv({
         indicator: 'text-white',
       },
       outline: {
-        container: 'border dark:border-text-800 dark:bg-background-950',
+        container: 'border dark:border-text-900 dark:bg-background-950',
         label: 'text-black dark:text-neutral-100',
         indicator: 'text-black dark:text-neutral-100',
       },

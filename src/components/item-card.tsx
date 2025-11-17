@@ -1,40 +1,135 @@
 import React from 'react';
+import { Pressable, Text, View } from 'react-native';
 
+import { useExpense } from '@/api/expenses/use-expenses';
 import { useItem } from '@/api/items/use-items';
-import { ActivityIndicator, Text, View } from '@/components/ui';
-import { type ExpenseIdT, type ItemIdT } from '@/types';
+import { usePeopleIdsForItem } from '@/api/people/use-people';
+import { ActivityIndicator } from '@/components/ui';
+import { type ExpenseIdT, type ItemIdT, type PersonWithId } from '@/types';
 
 import { PersonAvatar } from './person-avatar';
+
+type Props = {
+  expenseId: ExpenseIdT;
+  itemId: ItemIdT;
+  onPress?: (itemId: ItemIdT) => void;
+  selected?: boolean;
+  mode?: 'compact' | 'normal';
+};
 
 export const ItemCard = ({
   expenseId,
   itemId,
-}: {
-  expenseId: ExpenseIdT;
-  itemId: ItemIdT;
-}) => {
-  const { data, isPending, isError } = useItem({
+  onPress,
+  selected,
+  mode = 'normal',
+}: Props) => {
+  const {
+    data: item,
+    isPending: isItemPending,
+    isError: isItemError,
+  } = useItem({
     variables: { expenseId, itemId },
   });
+
+  const {
+    data: assignedPersonIds,
+    isPending: isAssignedIdsPending,
+    isError: isAssignedIdsError,
+  } = usePeopleIdsForItem({
+    variables: { expenseId, itemId },
+    enabled: mode === 'compact',
+  });
+
+  const {
+    data: expense,
+    isPending: isExpensePending,
+    isError: isExpenseError,
+  } = useExpense({
+    variables: expenseId,
+    enabled: mode === 'compact',
+  });
+
+  const isPending =
+    isItemPending ||
+    (mode === 'compact' && (isAssignedIdsPending || isExpensePending));
+  const isError =
+    isItemError ||
+    (mode === 'compact' && (isAssignedIdsError || isExpenseError));
+
   if (isPending) {
     return <ActivityIndicator />;
   }
-  if (isError) {
+
+  if (isError || !item) {
     return <Text>Error loading item</Text>;
   }
 
+  if (mode === 'compact') {
+    if (!expense) {
+      return null;
+    }
+
+    const people = expense.people;
+    const assignedPeople =
+      people?.filter((p: PersonWithId) =>
+        (assignedPersonIds ?? []).includes(p.id)
+      ) ?? [];
+
+    return (
+      <Pressable
+        onPress={() => onPress?.(itemId)}
+        className={`w-full flex-row items-center justify-between rounded-xl border p-6 ${
+          selected
+            ? 'border-accent-100 bg-accent-900'
+            : 'border-transparent bg-background-900'
+        }`}
+      >
+        <View className="flex-1 flex-row items-center gap-3">
+          {assignedPeople.length > 0 && (
+            <View className="flex-row items-center">
+              {assignedPeople
+                .slice(0, 4)
+                .map((person: PersonWithId, index: number) => (
+                  <View key={person.id} className={index > 0 ? '-ml-3' : ''}>
+                    <PersonAvatar
+                      personId={person.id}
+                      expenseId={expenseId}
+                      size="md"
+                    />
+                  </View>
+                ))}
+              {assignedPeople.length > 4 && (
+                <Text className="ml-2 text-lg dark:text-text-50">···</Text>
+              )}
+            </View>
+          )}
+          <View className="flex-1 flex-row items-center justify-between">
+            <Text className="font-futuraDemi text-2xl dark:text-text-50">
+              {item.name}
+            </Text>
+            <Text className="font-futuraMedium text-2xl dark:text-text-50">
+              ${item.amount.toFixed(2)}
+            </Text>
+          </View>
+        </View>
+      </Pressable>
+    );
+  }
+
+  // Normal mode
   return (
-    <View key={data.id} className="h-24 rounded-xl bg-background-900 px-5 py-4">
+    <View key={item.id} className="h-24 rounded-xl bg-background-900 px-5 py-4">
       <View className="flex flex-row items-center justify-between">
         <Text className="font-futuraMedium text-xl dark:text-text-50">
-          {data.name}
+          {item.name}
         </Text>
         <Text className="font-futuraDemi text-xl dark:text-text-50">
-          ${data.amount.toFixed(2)}
+          ${item.amount.toFixed(2)}
         </Text>
       </View>
       <View className="flex flex-row items-center justify-start gap-2 pt-2">
-        {data.assignedPersonIds.map((personId) => (
+        {item.assignedPersonIds.map((personId) => (
           <PersonAvatar
             key={personId}
             personId={personId}
