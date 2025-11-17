@@ -52,6 +52,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
   }
 
   const handleAddPerson = () => {
+    if (maxPeopleReached) return;
     const peopleArray = tempExpense?.people || [];
     const avatarColors = Object.keys(colors.avatar || {});
     const newPerson: PersonWithId = {
@@ -85,13 +86,14 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
   };
 
   const people = tempExpense?.people ?? [];
+  const maxPeopleReached = people.length >= 16;
 
   return (
     <View className="bg-transparent p-4">
       <Text className="pb-2 text-sm text-gray-400">
         {itemID ? 'Tap to assign to item' : 'Select an item to assign people'}
       </Text>
-      <View className="flex-row items-center pb-4">
+      <View className="flex-row flex-wrap items-center pb-4">
         {people.map((person) => {
           const isAssigned = itemID && assignedPeopleIds.includes(person.id);
           return (
@@ -111,7 +113,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
                   queryKey: ['people'],
                 });
               }}
-              className="pr-2"
+              className="pb-2 pr-1"
               activeOpacity={1}
               disabled={!itemID}
             >
@@ -119,13 +121,8 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
                 size="lg"
                 personId={person.id}
                 expenseId={expenseId}
+                isSelected={isAssigned}
               />
-              {isAssigned && (
-                // TODO: @Hadi1723 replace with a checkmark UI
-                <View>
-                  <Text>✓</Text>
-                </View>
-              )}
             </TouchableOpacity>
           );
         })}
@@ -133,14 +130,22 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
 
       <View className="flex-row justify-between pb-4">
         <TouchableOpacity
-          className="bg-background-800 mr-2 flex-1 items-center rounded-lg border border-text-900 py-3"
+          className="bg-background-800 mr-2 flex-1 items-center rounded-lg border border-text-900 p-3"
           onPress={handleAddPerson}
           activeOpacity={1}
         >
-          <Text className="font-bold text-white">+ Add person</Text>
+          <Text
+            className={
+              maxPeopleReached
+                ? 'font-bold text-gray-500'
+                : 'font-bold text-white'
+            }
+          >
+            Add person
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-2 bg-background-800 ml-2 items-center rounded-lg border border-text-900 px-6 py-3"
+          className="bg-background-800 ml-2 flex-1 items-center rounded-lg border border-text-900 p-3"
           onPress={handleRemove}
           disabled={assignedPeopleIds.length === 0}
         >
@@ -149,7 +154,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
               assignedPeopleIds.length > 0 ? 'text-white' : 'text-gray-500'
             }`}
           >
-            - Remove
+            Remove
           </Text>
         </TouchableOpacity>
       </View>

@@ -9,10 +9,12 @@ export const PersonAvatar = ({
   size = 'md',
   personId,
   expenseId,
+  isSelected = false,
 }: {
   size?: 'sm' | 'md' | 'lg';
   personId: PersonIdT;
   expenseId: ExpenseIdT;
+  isSelected?: boolean;
 }) => {
   const { data, isPending, isError } = usePerson({
     variables: { expenseId, personId },
@@ -30,7 +32,8 @@ export const PersonAvatar = ({
     <View
       className={cn(
         'flex items-center justify-center overflow-hidden rounded-full',
-        size === 'sm' ? 'size-6' : size === 'md' ? 'size-8' : 'size-12'
+        size === 'sm' ? 'size-6' : size === 'md' ? 'size-8' : 'size-12',
+        isSelected ? 'border-2 border-blue-900' : ''
       )}
       style={{ backgroundColor: avatarColor }}
     >
