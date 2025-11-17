@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 import { useExpenseCreation } from '@/lib/store';
 import {
@@ -9,7 +9,6 @@ import {
   type PersonWithId,
 } from '@/types';
 
-import CheckIcon from '../../assets/check-green-icon.png';
 import { PersonAvatar } from './person-avatar';
 
 type Props = {
@@ -69,19 +68,8 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
               size="lg"
               personId={person.id}
               expenseId={expenseId}
+              isSelected={isAssigned}
             />
-            {itemID && assignedPeopleIds.includes(person.id) && (
-              // TODO: @Hadi1723 replace with a checkmark UI
-              <View className="flex-row justify-between pb-4">
-                <Image
-                  source={CheckIcon}
-                  style={{
-                    width: 10,
-                    height: 10,
-                  }}
-                />
-              </View>
-            )}
           </TouchableOpacity>
         ))}
       </View>
