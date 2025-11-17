@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { queryClient } from '@/api/common/api-provider';
 import { useExpense } from '@/api/expenses/use-expenses';
+import { useItem } from '@/api/items/use-items';
 import { usePeopleIdsForItem } from '@/api/people/use-people';
 import { colors } from '@/components/ui';
 import { useExpenseCreation } from '@/lib/store';
@@ -103,12 +104,17 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
                 } else {
                   assignPersonToItem(itemID, person.id);
                 }
-                // TODO: Invalidate more specific queries related to people and items
                 queryClient.invalidateQueries({
-                  queryKey: ['items'],
+                  queryKey: usePeopleIdsForItem.getKey({
+                    expenseId,
+                    itemId: itemID,
+                  }),
                 });
                 queryClient.invalidateQueries({
-                  queryKey: ['people'],
+                  queryKey: useItem.getKey({
+                    expenseId,
+                    itemId: itemID,
+                  }),
                 });
               }}
               className="pb-2 pr-1"

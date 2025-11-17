@@ -70,7 +70,10 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
         updateItemShare(itemId, personId, 1);
       });
       queryClient.invalidateQueries({
-        queryKey: ['items'],
+        queryKey: useItem.getKey({
+          expenseId,
+          itemId,
+        }),
       });
     }
   }, [splitMode, assignedPersonIds, itemId, updateItemShare, expenseId]);
@@ -106,9 +109,11 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat((currentShare + 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
-    // TODO: Invalidate more specific queries related to items
     queryClient.invalidateQueries({
-      queryKey: ['items'],
+      queryKey: useItem.getKey({
+        expenseId,
+        itemId,
+      }),
     });
   };
 
@@ -116,9 +121,11 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat(Math.max(0, currentShare - 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
-    // TODO: Invalidate more specific queries related to items
     queryClient.invalidateQueries({
-      queryKey: ['items'],
+      queryKey: useItem.getKey({
+        expenseId,
+        itemId,
+      }),
     });
   };
 
@@ -165,12 +172,17 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
                 assignedPeople.forEach((person) => {
                   removePersonFromItem(itemId, person.id);
                 });
-                // TODO: Invalidate more specific queries related to people and items
                 queryClient.invalidateQueries({
-                  queryKey: ['items'],
+                  queryKey: usePeopleIdsForItem.getKey({
+                    expenseId,
+                    itemId,
+                  }),
                 });
                 queryClient.invalidateQueries({
-                  queryKey: ['people'],
+                  queryKey: useItem.getKey({
+                    expenseId,
+                    itemId,
+                  }),
                 });
               }}
             >

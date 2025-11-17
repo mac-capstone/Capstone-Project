@@ -38,14 +38,15 @@ export const PersonAvatar = ({
     <View
       className={cn(
         'flex items-center justify-center rounded-full relative',
-        size === 'sm' ? 'size-6' : size === 'md' ? 'size-8' : 'size-12'
+        size === 'sm' ? 'size-6' : size === 'md' ? 'size-8' : 'size-12',
+        isSelected ? 'opacity-100' : 'opacity-65'
       )}
       style={{ backgroundColor: avatarColor }}
     >
       <Octicons
         name="person"
         size={size === 'sm' ? 12 : size === 'md' ? 15 : 24}
-        color="#F4F4F5"
+        color="#D4D4D4"
       />
       {isSelected && (
         <View className="absolute -right-1 -top-1">
@@ -58,15 +59,11 @@ export const PersonAvatar = ({
               cx={checkmarkCircleRadius}
               cy={checkmarkCircleRadius}
               r={checkmarkCircleRadius}
-              fill={
-                avatarColor === colors.avatar.white
-                  ? colors.avatar.red
-                  : colors.avatar.white
-              }
+              fill="green"
             />
             <Path
               d={`M${checkmarkSize * 0.3} ${checkmarkSize * 0.5} L${checkmarkSize * 0.45} ${checkmarkSize * 0.65} L${checkmarkSize * 0.7} ${checkmarkSize * 0.4}`}
-              stroke={avatarColor}
+              stroke="#D4D4D4"
               strokeWidth={checkmarkStrokeWidth}
               strokeLinecap="round"
               strokeLinejoin="round"
