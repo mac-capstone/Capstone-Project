@@ -7,8 +7,8 @@ import { Alert } from 'react-native';
 import { queryClient } from '@/api/common/api-provider';
 import { useExpense } from '@/api/expenses/use-expenses';
 import { AddRemovePerson } from '@/components/add-remove-person';
-import { CompactItemCard } from '@/components/compact-item-card';
 import ExpenseCreationFooter from '@/components/expense-creation-footer';
+import { ItemCard } from '@/components/item-card';
 import { ItemCardDetailed } from '@/components/item-card-detailed';
 import { ActivityIndicator, Pressable, Text, View } from '@/components/ui';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
@@ -112,11 +112,12 @@ export default function SplitExpense() {
               <FlashList
                 data={tempExpense.items}
                 renderItem={({ item }) => (
-                  <CompactItemCard
+                  <ItemCard
                     itemId={item.id}
                     expenseId={tempExpense.id as ExpenseIdT}
                     onPress={setSelectedItemId}
                     selected={selectedItemId === item.id}
+                    mode="compact"
                   />
                 )}
                 keyExtractor={(item) => item.id}
