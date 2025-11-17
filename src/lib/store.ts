@@ -44,7 +44,6 @@ interface ExpenseCreationState {
   hydrate: () => void;
   getTotalAmount: () => number;
   getItemCount: () => number;
-  getItemPaersonIds: (itemId: ItemIdT) => PersonIdT[];
 }
 
 const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
@@ -271,14 +270,6 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
     const current = get().tempExpense;
     if (!current) return 0;
     return current.items.length;
-  },
-
-  getItemPaersonIds: (itemId) => {
-    const current = get().tempExpense;
-    if (!current) return [];
-    const item = current.items.find((i) => i.id === itemId);
-    if (!item) return [];
-    return item.assignedPersonIds || [];
   },
 }));
 

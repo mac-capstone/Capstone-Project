@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { queryClient } from '@/api/common/api-provider';
 import { useExpense } from '@/api/expenses/use-expenses';
+import { usePeopleIdsForItem } from '@/api/people/use-people';
 import { colors } from '@/components/ui';
 import { useExpenseCreation } from '@/lib/store';
 import {
@@ -20,30 +21,33 @@ type Props = {
   expenseId: ExpenseIdT;
 };
 
-const TEMP_EXPENSE_ID: ExpenseIdT = 'temp-expense' as ExpenseIdT;
-
 export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
   const {
     data: tempExpense,
     isPending,
     isError,
   } = useExpense({
-    variables: TEMP_EXPENSE_ID,
+    variables: expenseId,
   });
 
   const {
-    assignPersonToItem,
-    getItemPaersonIds,
-    removePersonFromItem,
-    addPerson,
-    removePerson,
-  } = useExpenseCreation();
+    data: assignedPeopleIds,
+    isPending: isAssignedPending,
+    isError: isAssignedError,
+  } = usePeopleIdsForItem({
+    variables: { expenseId, itemId: itemID },
+  });
 
-  if (isPending) {
+  console.log('Assigned People IDs:', assignedPeopleIds);
+
+  const { assignPersonToItem, removePersonFromItem, addPerson, removePerson } =
+    useExpenseCreation();
+
+  if (isPending || isAssignedPending) {
     return <ActivityIndicator />;
   }
 
-  if (isError) {
+  if (isError || isAssignedError) {
     return <Text>Error loading temp expense</Text>;
   }
 
@@ -65,8 +69,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
 
   const handleRemove = () => {
     if (!tempExpense) return;
-    const selectedPeopleIds = getItemPaersonIds(itemID);
-    selectedPeopleIds.forEach((personId) => {
+    assignedPeopleIds.forEach((personId) => {
       removePersonFromItem(itemID, personId);
       removePerson(personId);
     });
@@ -82,7 +85,6 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
   };
 
   const people = tempExpense?.people ?? [];
-  const assignedPeopleIds = getItemPaersonIds(itemID);
 
   return (
     <View className="bg-transparent p-4">
