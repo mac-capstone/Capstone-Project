@@ -1,11 +1,5 @@
-import { View } from 'react-native';
-
-import CameraViewComponent from './camera-view-test';
+import CameraViewComponent from './camera-view';
 
 export default function ReceiptCameraScreen() {
-  return (
-    <View className="flex-1">
-      <CameraViewComponent />
-    </View>
-  );
+  return <CameraViewComponent />;
 }

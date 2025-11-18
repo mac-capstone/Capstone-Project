@@ -1,19 +1,25 @@
 import { Octicons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { GoogleGenAI } from '@google/genai';
 import { type CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { router, Stack } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  StyleSheet,
+  Text as RText,
+  View as RView,
+} from 'react-native';
 
+import { extractReceiptInfo } from '@/api/camera-receipt/camera-receipt-api';
 import {
   Button,
   Pressable,
-  Text,
+  Text as CustomText,
   TouchableOpacity,
-  View,
+  View as CustomView,
 } from '@/components/ui';
-import { white } from '@/components/ui/colors';
+import colors, { white } from '@/components/ui/colors';
 import { useThemeConfig } from '@/lib/use-theme-config';
 
 export default function CameraViewComponent() {
@@ -26,20 +32,21 @@ export default function CameraViewComponent() {
   // Permission state & trigger
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
+  const [loading, setLoading] = useState(false);
 
   // Loading permission state
-  if (!permission) return <View />;
+  if (!permission) return <CustomView />;
   // Not granted UI
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.message}>
+      <CustomView style={styles.container}>
+        <CustomText style={styles.message}>
           We need your permission to show the camera
-        </Text>
+        </CustomText>
         <TouchableOpacity style={styles.button} onPress={requestPermission}>
-          <Text style={styles.text}>Grant Permission</Text>
+          <CustomText style={styles.text}>Grant Permission</CustomText>
         </TouchableOpacity>
-      </View>
+      </CustomView>
     );
   }
 
@@ -65,36 +72,65 @@ export default function CameraViewComponent() {
   async function handleCapture() {
     if (!cameraRef.current) return;
     try {
+      setLoading(true);
       // 1. Take a photo and get base64 data for upload
-      const photo = await cameraRef.current.takePictureAsync({ base64: true });
+      const photo = await cameraRef.current.takePictureAsync({
+        base64: true,
+        quality: 0.4,
+      });
+
       const base64Image = photo.base64;
       // 2. Send POST to Gemini
-      const geminiApiKey = 'AIzaSyB-e1mHwUNsdjnqPp2Z-nel4M-6JRsF4Vg'; // Replace with your API key, or load from env
-      const ai = new GoogleGenAI({ apiKey: geminiApiKey });
-      const contents = [
-        {
-          inlineData: {
-            mimeType: 'image/jpeg',
-            data: base64Image,
-          },
-        },
-        {
-          text: `You are an OCR model specialized in restaurant receipts. Extract only the items ordered (dish names) and their prices. Return the results as a JSON array of objects, each with keys "dish" and "price", like this: [{"dish": "Chicken Curry", "price": "$12.99"}, {"dish": "Spring Rolls", "price": "$5.50"}]`,
-        },
-      ];
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-lite',
-        contents: contents,
-      });
-      console.log(response.text);
+      const result = await extractReceiptInfo(base64Image);
+      console.log(result);
+      setLoading(false);
     } catch (err) {
       alert('Failed to process image: ' + err.message);
     }
   }
 
   return (
-    <View className="flex-[1]">
-      <View className="flex-row items-center justify-between">
+    <RView className="flex-1">
+      <Modal visible={loading} transparent animationType="fade">
+        <RView
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            position: 'absolute', // <--- makes it overlay
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 99,
+          }}
+        >
+          <RView
+            style={{
+              backgroundColor: colors.background[950],
+              padding: 24,
+              borderRadius: 16,
+              alignItems: 'center',
+              minWidth: 220,
+              elevation: 8,
+            }}
+          >
+            <ActivityIndicator size="large" color="white" />
+            <RText
+              style={{
+                marginTop: 12,
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: white,
+              }}
+            >
+              Uploading and processing...
+            </RText>
+          </RView>
+        </RView>
+      </Modal>
+      <CustomView className="flex-row items-center justify-between">
         <Stack.Screen
           options={{
             title: '',
@@ -115,13 +151,13 @@ export default function CameraViewComponent() {
             ),
           }}
         />
-        <View className="flex-row items-center justify-between px-4 py-2">
-          <Text className="flex-1 text-center font-futuraBold text-4xl dark:text-text-50">
+        <CustomView className="flex-row items-center justify-between px-4 py-2">
+          <CustomText className="flex-1 text-center font-futuraBold text-4xl dark:text-text-50">
             Receipt Camera
-          </Text>
-        </View>
-      </View>
-      <View className="w-11/12 flex-row items-center justify-between self-center rounded-2xl bg-background-900 px-6 py-5">
+          </CustomText>
+        </CustomView>
+      </CustomView>
+      <CustomView className="w-11/12 flex-row items-center justify-between self-center rounded-2xl bg-background-900 px-6 py-5">
         <Pressable
           className="items-center justify-center"
           onPress={toggleCameraFacing}
@@ -134,18 +170,18 @@ export default function CameraViewComponent() {
         >
           <Ionicons name={flashIcon} size={24} color="white" />
         </Pressable>
-      </View>
-      <View className="flex-[1] items-center justify-center p-2">
-        <View className="aspect-[3/4] w-11/12">
+      </CustomView>
+      <CustomView className="flex-1 items-center justify-center p-2">
+        <CustomView className="aspect-[3/4] w-11/12">
           <CameraView
             ref={cameraRef}
             style={styles.camera}
             facing={facing}
             flash={flash}
           />
-        </View>
-      </View>
-      <View className="justify-center px-5 py-10 pt-2">
+        </CustomView>
+      </CustomView>
+      <CustomView className="justify-center px-5 py-10 pt-2">
         <Button
           className="min-h-12"
           label="Capture Reciept"
@@ -163,8 +199,8 @@ export default function CameraViewComponent() {
           }}
           variant="outline"
         />
-      </View>
-    </View>
+      </CustomView>
+    </RView>
   );
 }
 
