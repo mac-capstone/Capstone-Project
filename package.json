@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "^6.1.2",
+    "@google/genai": "^1.29.1",
     "@gorhom/bottom-sheet": "^5.2.6",
     "@hookform/resolvers": "^3.9.0",
     "@rn-primitives/progress": "^1.2.0",
@@ -51,6 +52,7 @@
     "app-icon-badge": "^0.1.2",
     "axios": "^1.7.5",
     "expo": "~54.0.23",
+    "expo-camera": "^17.0.9",
     "expo-constants": "~18.0.10",
     "expo-crypto": "^15.0.7",
     "expo-dev-client": "~6.0.17",
