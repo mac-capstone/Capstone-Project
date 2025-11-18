@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 
 const geminiApiKey = 'AIzaSyB-e1mHwUNsdjnqPp2Z-nel4M-6JRsF4Vg';
 
-export async function extractReceiptInfo(base64Image) {
+export async function extractReceiptInfo(base64Image: string) {
   // Replace with your API key, or load from env
   const ai = new GoogleGenAI({ apiKey: geminiApiKey });
   const contents = [
