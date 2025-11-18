@@ -125,6 +125,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
                 size="lg"
                 personId={person.id}
                 expenseId={expenseId}
+                inSplitView={true}
                 isSelected={isAssigned}
               />
             </TouchableOpacity>

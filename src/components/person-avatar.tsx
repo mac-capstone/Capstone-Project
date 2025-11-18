@@ -11,10 +11,12 @@ export const PersonAvatar = ({
   personId,
   expenseId,
   isSelected = false,
+  inSplitView = false,
 }: {
   size?: 'sm' | 'md' | 'lg';
   personId: PersonIdT;
   expenseId: ExpenseIdT;
+  inSplitView?: boolean;
   isSelected?: boolean;
 }) => {
   const { data, isPending, isError } = usePerson({
@@ -39,7 +41,11 @@ export const PersonAvatar = ({
       className={cn(
         'flex items-center justify-center rounded-full relative',
         size === 'sm' ? 'size-6' : size === 'md' ? 'size-8' : 'size-12',
-        isSelected ? 'opacity-100' : 'opacity-65'
+        inSplitView
+          ? isSelected
+            ? 'opacity-100'
+            : 'opacity-65'
+          : 'opacity-100'
       )}
       style={{ backgroundColor: avatarColor }}
     >
