@@ -40,6 +40,7 @@ interface ExpenseCreationState {
   addPerson: (person: PersonWithId) => void;
   removePerson: (personId: PersonIdT) => void;
   clearTempExpense: () => void;
+  clearTempExpenseItems: () => void;
   initializeTempExpense: (createdBy: UserIdT) => void;
   hydrate: () => void;
   getTotalAmount: () => number;
@@ -258,6 +259,15 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
   clearTempExpense: () => {
     set({ tempExpense: null });
     removeTempExpense();
+  },
+
+  clearTempExpenseItems: () => {
+    const current = get().tempExpense;
+    if (current) {
+      const updated = { ...current, items: [] };
+      set({ tempExpense: updated });
+      setTempExpense(updated);
+    }
   },
 
   getTotalAmount: () => {
