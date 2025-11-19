@@ -221,6 +221,9 @@ function getItemAndAmountFromTaggedWords(taggedWords: any[]): {
     if (pair[1] === '$') {
       // Price should come after dollar sign
       itemAmount = parseFloat(taggedWords[index + 1][0]);
+      if (start !== -1 && end === -1) {
+        end = index;
+      }
     } else if (
       pair[0].toLowerCase() !== 'cost' &&
       pair[0].toLowerCase() !== 'dollar' &&
