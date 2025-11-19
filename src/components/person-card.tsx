@@ -18,6 +18,7 @@ export const PersonCard = ({
   const { data, isPending, isError } = usePerson({
     variables: { expenseId, personId },
   });
+  console.log('data', data);
   if (isPending) {
     return <ActivityIndicator />;
   }
@@ -34,7 +35,7 @@ export const PersonCard = ({
           </Text>
         </View>
         <Text className="font-futuraDemi text-xl dark:text-accent-100">
-          ${data.subtotal.toFixed(2)}
+          ${data.subtotal?.toFixed(2)}
         </Text>
       </View>
       <View className="ml-6 mt-1 border-l border-white/15 pl-4">
@@ -61,11 +62,7 @@ export const PersonItemList = ({
     return <Text>Error loading items</Text>;
   }
   if (data.length === 0) {
-    return (
-      <View className="ml-6 border-l border-white/15 pl-4">
-        <Text className="text-text-400">No items assigned</Text>
-      </View>
-    );
+    return <></>;
   }
 
   return (
@@ -89,7 +86,6 @@ export const PersonItemList = ({
           );
         }}
         keyExtractor={(item) => item.id}
-        // ItemSeparatorComponent={() => <View className="h-1" />} // 12px gap
       />
     </View>
   );

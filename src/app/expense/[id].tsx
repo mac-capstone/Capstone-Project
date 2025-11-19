@@ -21,11 +21,12 @@ import { useThemeConfig } from '@/lib/use-theme-config';
 import { cn } from '@/lib/utils';
 import { type ExpenseIdT } from '@/types';
 
-export default function Post() {
+export default function ExpenseView() {
   const router = useRouter();
   const theme = useThemeConfig();
-  const { id } = useLocalSearchParams<{
+  const { id, viewMode } = useLocalSearchParams<{
     id: ExpenseIdT;
+    viewMode: 'view' | 'confirm';
   }>();
   const [mode, setMode] = useState<'split' | 'items'>('split');
   const { data, isPending, isError } = useExpense({
@@ -99,8 +100,10 @@ export default function Post() {
       </View>
       <ExpenseCreationFooter
         totalAmount={data.totalAmount}
-        hasNext={false}
-        hasPrevious={false}
+        hasNext={viewMode === 'confirm'}
+        hasPrevious={viewMode === 'confirm'}
+        onNextPress={() => router.push('/')}
+        onPreviousPress={() => router.back()}
       />
     </>
   );

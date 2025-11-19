@@ -61,11 +61,22 @@ export const usePerson = createQuery<
     if (expenseId === 'temp-expense') {
       const tempExpense = getTempExpense();
       if (!tempExpense) throw new Error('Temp expense not found');
+      // calculate subtotal this person
+      const subtotal = tempExpense.items.reduce((acc, item) => {
+        if (item.assignedPersonIds.includes(personId)) {
+          return acc + item.split.shares[personId];
+        } else {
+          return acc;
+        }
+      }, 0);
       const person = tempExpense.people.find(
         (person) => person.id === personId
       );
       if (!person) throw new Error('Person not found');
-      return person;
+      return {
+        ...person,
+        subtotal,
+      };
     }
     const expense = mockData.expenses.find(
       (expense) => expense.id === expenseId

@@ -128,8 +128,16 @@ export default function SplitExpense() {
           />
           <ExpenseCreationFooter
             totalAmount={tempExpense.totalAmount}
-            onPreviousPress={() => router.push('/expense/add-expense')}
-            onNextPress={() => router.push('/expense/confirm-expense')}
+            onPreviousPress={() => router.back()}
+            onNextPress={() =>
+              router.push({
+                pathname: '/expense/[id]',
+                params: {
+                  id: tempExpense.id as ExpenseIdT,
+                  viewMode: 'confirm',
+                },
+              })
+            }
           />
         </>
       ) : null}
