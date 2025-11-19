@@ -169,9 +169,31 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
         }
         return item;
       });
+
+      const peopleWithSubtotals = current.people.map((person) => {
+        const subtotal = updatedItems.reduce((acc, item) => {
+          if (item.split?.shares) {
+            const totalShares = Object.values(item.split.shares).reduce(
+              (s, share) => (s as number) + (share as number),
+              0
+            ) as number;
+            const personShare =
+              (item.split.shares as Record<PersonIdT, number>)[person.id] || 0;
+            if (totalShares > 0 && personShare > 0) {
+              return acc + (item.amount / totalShares) * personShare;
+            }
+          }
+          return acc;
+        }, 0);
+        return { ...person, subtotal };
+      });
+
+      console.log(current.people);
+
       const updated = {
         ...current,
         items: updatedItems,
+        people: peopleWithSubtotals,
       };
       set({ tempExpense: updated });
       setTempExpense(updated);
