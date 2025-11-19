@@ -18,7 +18,6 @@ export const PersonCard = ({
   const { data, isPending, isError } = usePerson({
     variables: { expenseId, personId },
   });
-  console.log('data', data);
   if (isPending) {
     return <ActivityIndicator />;
   }

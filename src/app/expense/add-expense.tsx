@@ -179,7 +179,7 @@ export default function AddExpense() {
           queryClient.invalidateQueries({
             queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
           });
-          router.replace('/expense/split-expense');
+          router.push('/expense/split-expense');
         }}
         totalAmount={getTotalAmount()}
         hasPrevious={false}
