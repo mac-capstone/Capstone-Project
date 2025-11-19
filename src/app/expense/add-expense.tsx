@@ -308,7 +308,6 @@ function CreateItemCard() {
   useSpeechRecognitionEvent('start', () => setRecognizing(true));
   useSpeechRecognitionEvent('end', () => setRecognizing(false));
   useSpeechRecognitionEvent('result', (event) => {
-    console.log(event);
     const transcriptText = event.results[0]?.transcript ?? '';
 
     if (event.isFinal) {
@@ -329,7 +328,7 @@ function CreateItemCard() {
     console.log('error code:', event.error, 'error message:', event.message);
   });
 
-  const handleStart = async () => {
+  const handleStartRecording = async () => {
     const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
     if (!result.granted) {
       console.warn('Permissions not granted', result);
@@ -355,7 +354,7 @@ function CreateItemCard() {
         {!recognizing ? (
           <Pressable
             className="size-11 items-center justify-center rounded-2xl bg-background-900"
-            onPress={handleStart}
+            onPress={handleStartRecording}
           >
             <Ionicons name="mic-outline" size={24} color="#A4A4A4" />
           </Pressable>
@@ -364,7 +363,6 @@ function CreateItemCard() {
             className="size-11 items-center justify-center rounded-2xl bg-background-900"
             onPress={() => {
               ExpoSpeechRecognitionModule.stop();
-              console.log('stopped');
             }}
           >
             <Ionicons name="mic-outline" size={24} color="#c70000ff" />
