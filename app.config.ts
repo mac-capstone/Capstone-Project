@@ -84,6 +84,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     ['app-icon-badge', appIconBadgeConfig],
     ['react-native-edge-to-edge'],
+    [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow this app to use the microphone.",
+          "speechRecognitionPermission": "Allow this app to use speech recognition.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
+      ]
   ],
   extra: {
     ...ClientEnv,
