@@ -1,5 +1,6 @@
 import { Linking } from 'react-native';
 import { twMerge } from 'tailwind-merge';
+import { z } from 'zod';
 import type { StoreApi, UseBoundStore } from 'zustand';
 
 import {
@@ -94,4 +95,36 @@ export const mapMockItemToItemWithId = (
 
 export const personShare = (item: ItemWithId, personId: PersonIdT) => {
   return item.split.shares[personId];
+};
+
+export const parseReceiptInfo = (
+  result: string
+): z.SafeParseReturnType<
+  { dish: string; price: number }[],
+  { dish: string; price: number }[]
+> | null => {
+  // remove the ```json and ``` from the result
+  const cleanedResult = result
+    .trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/g, '')
+    .replace(/\s*```$/g, '')
+    .trim();
+  // Parse JSON string first, then validate with zod
+  let parsedJson;
+  try {
+    parsedJson = JSON.parse(cleanedResult);
+  } catch (parseError) {
+    console.log('JSON parse error:', parseError);
+    return null;
+  }
+  const parsedResult = z
+    .array(
+      z.object({
+        dish: z.string(),
+        price: z.string().transform((val) => Number(val.replace('$', ''))),
+      })
+    )
+    .safeParse(parsedJson);
+  return parsedResult;
 };

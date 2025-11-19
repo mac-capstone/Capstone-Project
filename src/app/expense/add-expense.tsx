@@ -164,9 +164,7 @@ export default function AddExpense() {
           className="min-h-12"
           label="Scan Receipt"
           icon={<Ionicons name="scan-outline" size={20} />}
-          onPress={() => {
-            console.log('scan receipt');
-          }}
+          onPress={() => router.push('/reciept-camera')}
         />
       </View>
       <ExpenseCreationFooter
