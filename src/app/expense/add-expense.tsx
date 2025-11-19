@@ -3,6 +3,10 @@ import 'react-native-get-random-values';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { router, Stack } from 'expo-router';
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from 'expo-speech-recognition';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,10 +21,6 @@ import { useThemeConfig } from '@/lib/use-theme-config';
 import { type ExpenseIdT, type ItemIdT } from '@/types';
 
 const TEMP_EXPENSE_ID = 'temp-expense' as ExpenseIdT;
-import {
-  ExpoSpeechRecognitionModule,
-  useSpeechRecognitionEvent,
-} from 'expo-speech-recognition';
 
 export default function AddExpense() {
   const theme = useThemeConfig();
@@ -206,11 +206,99 @@ function TempItemCards() {
   ));
 }
 
+function getItemAndAmountFromTaggedWords(taggedWords: any[]): {
+  itemName: string;
+  itemAmount: number;
+} {
+  let itemName = '';
+  let itemAmount = 0;
+  let index = 0;
+  let start = -1;
+  let end = -1;
+  let lastCDIndex = -1;
+
+  taggedWords.forEach((pair: [string, string]) => {
+    if (pair[1] === '$') {
+      // Price should come after dollar sign
+      itemAmount = parseFloat(taggedWords[index + 1][0]);
+    } else if (
+      pair[0].toLowerCase() !== 'cost' &&
+      pair[0].toLowerCase() !== 'dollar' &&
+      pair[0].toLowerCase() !== 'dollars' &&
+      (pair[1] === 'NN' ||
+        pair[1] === 'NNS' ||
+        pair[1] === 'NNP' ||
+        pair[1] === 'NNPS')
+    ) {
+      // Noun indicates item name, set start if not set
+      // also ignore "cost" and "dollar(s)" as they are not item names
+      if (start === -1) {
+        start = index;
+      }
+    } else {
+      if (pair[0].toLowerCase() !== 'and') {
+        // any other word indicates end of item name if start has been set
+        if (start !== -1 && end === -1) {
+          end = index;
+        }
+      } else {
+        // handle "and" case
+        // and must be followed by a noun or item name ends on the index of "and"
+        // also must not be the last word
+        if (
+          index + 1 !== taggedWords.length &&
+          (taggedWords[index + 1][1] === 'NN' ||
+            taggedWords[index + 1][1] === 'NNS' ||
+            taggedWords[index + 1][1] === 'NNP' ||
+            taggedWords[index + 1][1] === 'NNPS')
+        ) {
+          // do nothing, continue item name
+        } else {
+          // bad "and" case, item name ends here
+          if (start !== -1 && end === -1) {
+            end = index;
+          }
+        }
+      }
+    }
+    // Keep track of last CD (cardinal number) index for amount extraction
+    // in the case no dollar sign is present
+    // this case shouldn't happen using voice to text
+
+    // could be adjusted in the future using multiple possible voice text possibilities,
+    // picking the one with a dollar sign
+    if (pair[1] === 'CD') {
+      lastCDIndex = index;
+    }
+
+    index++;
+  });
+  if (lastCDIndex !== -1 && itemAmount === 0) {
+    itemAmount = parseFloat(taggedWords[lastCDIndex][0]);
+  }
+
+  if (end === -1) {
+    end = taggedWords.length;
+  }
+  itemName = taggedWords
+    .slice(start, end)
+    .map((pair: [string, string]) => pair[0])
+    .join(' ');
+
+  // Logging for debugging
+  // console.log('sentence:', taggedWords);
+  // console.log('itemName start index:', start);
+  // console.log('itemName end index:', end);
+  // console.log('Extracted Item Name:', itemName);
+  // console.log('Extracted Item Amount:', itemAmount);
+
+  return { itemName, itemAmount };
+}
+
 function CreateItemCard() {
   const [tempItemName, setTempItemName] = useState<string>('');
   const [tempItemAmount, setTempItemAmount] = useState<number>(0);
   const [recognizing, setRecognizing] = useState(false);
-  const [transcript, setTranscript] = useState('');
 
   const addItem = useExpenseCreation.use.addItem();
 
@@ -219,96 +307,16 @@ function CreateItemCard() {
   useSpeechRecognitionEvent('result', (event) => {
     console.log(event);
     const transcriptText = event.results[0]?.transcript ?? '';
-    setTranscript(transcriptText);
 
     if (event.isFinal) {
-      var pos = require('pos');
-      var words = new pos.Lexer().lex(transcriptText);
+      let pos = require('pos');
+      let words = new pos.Lexer().lex(transcriptText);
 
-      var tagger = new pos.Tagger();
-      var taggedWords = tagger.tag(words);
+      let tagger = new pos.Tagger();
+      let taggedWords = tagger.tag(words);
 
-      let itemName = '';
-      let itemAmount = 0;
-      let index = 0;
-      let start = -1;
-      let end = -1;
-      let lastCDIndex = -1;
-
-      taggedWords.forEach((pair: [string, string]) => {
-        if (pair[1] === '$') {
-          // Price should come after dollar sign
-          itemAmount = parseFloat(taggedWords[index + 1][0]);
-        } else if (
-          pair[0].toLowerCase() !== 'cost' &&
-          pair[0].toLowerCase() !== 'dollar' &&
-          pair[0].toLowerCase() !== 'dollars' &&
-          (pair[1] === 'NN' ||
-            pair[1] === 'NNS' ||
-            pair[1] === 'NNP' ||
-            pair[1] === 'NNPS')
-        ) {
-          // Noun indicates item name, set start if not set
-          // also ignore "cost" and "dollar(s)" as they are not item names
-          if (start === -1) {
-            start = index;
-          }
-        } else {
-          if (pair[0].toLowerCase() !== 'and') {
-            // any other word indicates end of item name if start has been set
-            if (start !== -1 && end === -1) {
-              end = index;
-            }
-          } else {
-            // handle "and" case
-            // and must be followed by a noun or item name ends on the index of "and"
-            // also must not be the last word
-            if (
-              index + 1 !== taggedWords.length &&
-              (taggedWords[index + 1][1] === 'NN' ||
-                taggedWords[index + 1][1] === 'NNS' ||
-                taggedWords[index + 1][1] === 'NNP' ||
-                taggedWords[index + 1][1] === 'NNPS')
-            ) {
-              // do nothing, continue item name
-            } else {
-              // bad "and" case, item name ends here
-              if (start !== -1 && end === -1) {
-                end = index;
-              }
-            }
-          }
-        }
-        // Keep track of last CD (cardinal number) index for amount extraction
-        // in the case no dollar sign is present
-        // this case shouldn't happen using voice to text
-
-        // could be adjusted in the future using multiple possible voice text possibilities,
-        // picking the one with a dollar sign
-        if (pair[1] === 'CD') {
-          lastCDIndex = index;
-        }
-
-        index++;
-      });
-      if (lastCDIndex !== -1 && itemAmount === 0) {
-        itemAmount = parseFloat(taggedWords[lastCDIndex][0]);
-      }
-
-      if (end === -1) {
-        end = taggedWords.length;
-      }
-      itemName = taggedWords
-        .slice(start, end)
-        .map((pair: [string, string]) => pair[0])
-        .join(' ');
-
-      // Logging for debugging
-      // console.log('sentence:', taggedWords);
-      // console.log('itemName start index:', start);
-      // console.log('itemName end index:', end);
-      // console.log('Extracted Item Name:', itemName);
-      // console.log('Extracted Item Amount:', itemAmount);
+      let { itemName, itemAmount } =
+        getItemAndAmountFromTaggedWords(taggedWords);
 
       setTempItemName(itemName);
       setTempItemAmount(itemAmount);
@@ -390,9 +398,6 @@ function CreateItemCard() {
         }}
         disabled={!tempItemName || !tempItemAmount}
       />
-      <View>
-        <Text>{transcript}</Text>
-      </View>
     </View>
   );
 }
