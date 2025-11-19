@@ -97,7 +97,12 @@ export const personShare = (item: ItemWithId, personId: PersonIdT) => {
   return item.split.shares[personId];
 };
 
-export const parseReceiptInfo = (result: string) => {
+export const parseReceiptInfo = (
+  result: string
+): z.SafeParseReturnType<
+  { dish: string; price: number }[],
+  { dish: string; price: number }[]
+> | null => {
   // remove the ```json and ``` from the result
   const cleanedResult = result
     .trim()
