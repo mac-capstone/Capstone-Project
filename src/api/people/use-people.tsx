@@ -2,7 +2,7 @@ import { createQuery } from 'react-query-kit';
 
 import { mockData } from '@/lib/mock-data';
 import { getTempExpense } from '@/lib/store';
-import { mapMockPersonToPerson } from '@/lib/utils';
+import { calculatePersonShare, mapMockPersonToPerson } from '@/lib/utils';
 import {
   type ExpenseIdT,
   type ItemIdT,
@@ -64,7 +64,7 @@ export const usePerson = createQuery<
       // calculate subtotal this person
       const subtotal = tempExpense.items.reduce((acc, item) => {
         if (item.assignedPersonIds.includes(personId)) {
-          return acc + item.split.shares[personId];
+          return acc + calculatePersonShare(item, personId);
         } else {
           return acc;
         }

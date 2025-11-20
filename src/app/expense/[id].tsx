@@ -50,7 +50,7 @@ export default function ExpenseView() {
     year: 'numeric',
   });
 
-  const handleConfirmExpense = () => {
+  const handleConfirmExpense = async () => {
     // TODO: will be a firebase write
     let people: any[] = [];
     let items: any[] = [];
@@ -92,7 +92,7 @@ export default function ExpenseView() {
         items,
       } as (typeof mockData.expenses)[number]);
       clearTempExpense();
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: ['expenses', 'expenseId', id],
       });
     }

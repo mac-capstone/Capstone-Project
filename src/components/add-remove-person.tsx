@@ -52,7 +52,7 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
     return <Text>Error loading temp expense</Text>;
   }
 
-  const handleAddPerson = () => {
+  const handleAddPerson = async () => {
     if (maxPeopleReached) return;
     const peopleArray = tempExpense?.people || [];
     const avatarColors = Object.keys(colors.avatar || {});
@@ -64,21 +64,21 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
       subtotal: 0,
     };
     addPerson(newPerson);
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: ['expenses', 'expenseId', expenseId],
     });
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     if (!tempExpense) return;
     assignedPeopleIds.forEach((personId) => {
       removePersonFromItem(itemID, personId);
       removePerson(personId);
     });
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: ['people', 'expenseId', expenseId, 'itemId', itemID],
     });
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: ['expenses', 'expenseId', expenseId],
     });
   };
@@ -97,20 +97,20 @@ export const AddRemovePerson = ({ itemID, expenseId }: Props) => {
           return (
             <TouchableOpacity
               key={person.id}
-              onPress={() => {
+              onPress={async () => {
                 if (!itemID) return;
                 if (isAssigned) {
                   removePersonFromItem(itemID, person.id);
                 } else {
                   assignPersonToItem(itemID, person.id);
                 }
-                queryClient.invalidateQueries({
+                await queryClient.invalidateQueries({
                   queryKey: usePeopleIdsForItem.getKey({
                     expenseId,
                     itemId: itemID,
                   }),
                 });
-                queryClient.invalidateQueries({
+                await queryClient.invalidateQueries({
                   queryKey: useItem.getKey({
                     expenseId,
                     itemId: itemID,

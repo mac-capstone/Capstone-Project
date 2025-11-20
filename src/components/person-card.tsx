@@ -4,7 +4,7 @@ import React from 'react';
 import { usePersonItems } from '@/api/items/use-person-items';
 import { usePerson } from '@/api/people/use-people';
 import { ActivityIndicator, Text, View } from '@/components/ui';
-import { personShare } from '@/lib/utils';
+import { calculatePersonShare } from '@/lib/utils';
 import { type ExpenseIdT, type PersonIdT } from '@/types';
 
 import { PersonAvatar } from './person-avatar';
@@ -69,7 +69,7 @@ export const PersonItemList = ({
       <FlashList
         data={data}
         renderItem={({ item }) => {
-          const share = personShare(item, personId);
+          const share = calculatePersonShare(item, personId);
           return (
             <View
               key={item.id}

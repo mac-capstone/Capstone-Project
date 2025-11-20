@@ -93,8 +93,12 @@ export const mapMockItemToItemWithId = (
   };
 };
 
-export const personShare = (item: ItemWithId, personId: PersonIdT) => {
-  return item.split.shares[personId];
+export const calculatePersonShare = (item: ItemWithId, personId: PersonIdT) => {
+  const totalShares = Object.values(item.split.shares).reduce(
+    (acc, share) => acc + share,
+    0
+  );
+  return (item.split.shares[personId] * item.amount) / totalShares;
 };
 
 export const parseReceiptInfo = (

@@ -18,7 +18,7 @@ import { Button, Input, Pressable, Text, View } from '@/components/ui';
 import { useAuth } from '@/lib';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
 import { useThemeConfig } from '@/lib/use-theme-config';
-import { type ExpenseIdT, type ItemIdT } from '@/types';
+import { type ExpenseIdT, type ItemIdT, type ItemWithId } from '@/types';
 
 const TEMP_EXPENSE_ID = 'temp-expense' as ExpenseIdT;
 
@@ -43,13 +43,19 @@ export default function AddExpense() {
   }, [hydrate]);
 
   useEffect(() => {
-    // if the user is logged in and the temp expense is not found
-    if (userId && (!tempExpense || isError)) {
-      initializeTempExpense(userId);
-      queryClient.invalidateQueries({
-        queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
-      });
-    }
+    const fetchTempExpense = async () => {
+      // if the user is logged in and the temp expense is not found
+      if (userId && (!tempExpense || isError)) {
+        initializeTempExpense(userId);
+        await queryClient.invalidateQueries({
+          queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['items', 'expenseId', TEMP_EXPENSE_ID],
+        });
+      }
+    };
+    fetchTempExpense();
   }, [userId, tempExpense, initializeTempExpense, isError]);
 
   if (isPending) {
@@ -97,7 +103,7 @@ export default function AddExpense() {
           },
           headerLeft: () => (
             <Pressable
-              onPress={() => {
+              onPress={async () => {
                 if (
                   tempExpense?.items?.length &&
                   tempExpense.items.length > 0
@@ -109,11 +115,11 @@ export default function AddExpense() {
                       { text: 'Cancel', style: 'cancel' },
                       {
                         text: 'Leave',
-                        onPress: () => {
+                        onPress: async () => {
                           router.replace('/');
                           clearTempExpense();
                           setExpenseName('');
-                          queryClient.invalidateQueries({
+                          await queryClient.invalidateQueries({
                             queryKey: [
                               'expenses',
                               'expenseId',
@@ -128,7 +134,7 @@ export default function AddExpense() {
                   router.replace('/');
                   clearTempExpense();
                   setExpenseName('');
-                  queryClient.invalidateQueries({
+                  await queryClient.invalidateQueries({
                     queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
                   });
                 }
@@ -159,7 +165,7 @@ export default function AddExpense() {
           />
         </View>
         <View className="flex flex-col gap-4">
-          <TempItemCards />
+          <TempItemCards tempExpenseItems={tempExpense?.items || []} />
           <CreateItemCard />
         </View>
       </View>
@@ -173,10 +179,10 @@ export default function AddExpense() {
       </View>
       <ExpenseCreationFooter
         nextDisabled={getTotalAmount() === 0 || expenseName === ''}
-        onNextPress={() => {
+        onNextPress={async () => {
           setExpenseNameInStore(expenseName);
           setExpenseName('');
-          queryClient.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
           });
           router.push('/expense/split-expense');
@@ -188,10 +194,14 @@ export default function AddExpense() {
   );
 }
 
-function TempItemCards() {
-  const tempExpense = useExpenseCreation.use.tempExpense();
-  if (!tempExpense) return null;
-  return tempExpense.items.map((item) => (
+function TempItemCards({
+  tempExpenseItems,
+}: {
+  tempExpenseItems: ItemWithId[];
+}) {
+  console.log('tempExpenseItems', tempExpenseItems);
+  if (!tempExpenseItems || tempExpenseItems.length === 0) return null;
+  return tempExpenseItems.map((item) => (
     <View
       key={item.id}
       className="flex flex-row items-center justify-between rounded-xl bg-background-900 p-4"
@@ -377,7 +387,7 @@ function CreateItemCard() {
       />
       <Button
         label="Add Item"
-        onPress={() => {
+        onPress={async () => {
           addItem({
             id: uuidv4() as ItemIdT,
             name: tempItemName,
@@ -388,10 +398,10 @@ function CreateItemCard() {
             },
             assignedPersonIds: [],
           });
-          queryClient.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
           });
-          queryClient.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: ['items', 'expenseId', TEMP_EXPENSE_ID],
           });
           setTempItemName('');
