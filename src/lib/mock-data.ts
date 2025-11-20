@@ -19,7 +19,6 @@ export const mockData = {
         createdBy: 'user_ankush',
         totalAmount: 64.23,
         remainingAmount: 23.45,
-        itemCount: 3,
         participantCount: 3,
       },
       people: [
@@ -110,7 +109,6 @@ export const mockData = {
         createdBy: 'user_ankush',
         totalAmount: 250.1,
         remainingAmount: 100.39,
-        itemCount: 4,
         participantCount: 4,
       },
       people: [

@@ -44,7 +44,6 @@ interface ExpenseCreationState {
   initializeTempExpense: (createdBy: UserIdT) => void;
   hydrate: () => void;
   getTotalAmount: () => number;
-  getItemCount: () => number;
 }
 
 const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
@@ -77,7 +76,6 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
       items: [],
       people: [],
       totalAmount: 0,
-      itemCount: 0,
     };
     set({ tempExpense: newTempExpense });
     setTempExpense(newTempExpense);
@@ -117,7 +115,6 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
         items: [...current.items, item],
         totalAmount: current.totalAmount + item.amount,
         remainingAmount: current.totalAmount + item.amount,
-        itemCount: current.items.length + 1,
       };
       set({ tempExpense: updated });
       setTempExpense(updated);
@@ -137,7 +134,6 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
         remainingAmount: itemToRemove
           ? current.totalAmount - itemToRemove.amount
           : current.remainingAmount,
-        itemCount: current.items.length - 1,
       };
       set({ tempExpense: updated });
       setTempExpense(updated);
@@ -264,8 +260,14 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
   clearTempExpenseItems: () => {
     const current = get().tempExpense;
     if (current) {
-      const updated = { ...current, items: [] };
+      const updated = {
+        ...current,
+        items: [],
+        totalAmount: 0,
+        remainingAmount: 0,
+      };
       set({ tempExpense: updated });
+
       setTempExpense(updated);
     }
   },
@@ -274,12 +276,6 @@ const _useExpenseCreation = create<ExpenseCreationState>((set, get) => ({
     const current = get().tempExpense;
     if (!current) return 0;
     return current.totalAmount;
-  },
-
-  getItemCount: () => {
-    const current = get().tempExpense;
-    if (!current) return 0;
-    return current.items.length;
   },
 }));
 

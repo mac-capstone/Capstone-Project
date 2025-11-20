@@ -21,6 +21,7 @@ import { type ExpenseIdT } from '@/types';
 export default function ExpenseView() {
   const router = useRouter();
   const theme = useThemeConfig();
+  const [loading, setLoading] = useState(false);
   const { id, viewMode } = useLocalSearchParams<{
     id: ExpenseIdT;
     viewMode: 'view' | 'confirm';
@@ -52,6 +53,7 @@ export default function ExpenseView() {
 
   const handleConfirmExpense = async () => {
     // TODO: will be a firebase write
+    setLoading(true);
     let people: any[] = [];
     let items: any[] = [];
 
@@ -85,7 +87,6 @@ export default function ExpenseView() {
           createdBy: data.createdBy,
           totalAmount: data.totalAmount,
           remainingAmount: data.remainingAmount,
-          itemCount: data.itemCount,
           participantCount: data.participantCount,
         },
         people,
@@ -97,6 +98,7 @@ export default function ExpenseView() {
       });
     }
     router.push('/');
+    setLoading(false);
   };
 
   return (
@@ -150,6 +152,9 @@ export default function ExpenseView() {
         hasPrevious={viewMode === 'confirm'}
         onNextPress={handleConfirmExpense}
         onPreviousPress={() => router.back()}
+        nextDisabled={loading}
+        previousDisabled={loading}
+        nextButtonLabel={loading ? 'Loading' : 'Confirm'}
       />
     </>
   );

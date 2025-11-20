@@ -9,7 +9,6 @@ export type Expense = {
   date: string;
   remainingAmount: number;
   createdBy: UserIdT;
-  itemCount: number;
   participantCount: number;
 };
 

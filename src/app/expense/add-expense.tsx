@@ -34,10 +34,17 @@ export default function AddExpense() {
     variables: TEMP_EXPENSE_ID,
   });
   const [expenseName, setExpenseName] = useState<string>('');
-  const setExpenseNameInStore = useExpenseCreation.use.setExpenseName();
-  const getTotalAmount = useExpenseCreation.use.getTotalAmount();
-  const initializeTempExpense = useExpenseCreation.use.initializeTempExpense();
-  const hydrate = useExpenseCreation.use.hydrate();
+  // const setExpenseNameInStore = useExpenseCreation.use.setExpenseName();
+  // const getTotalAmount = useExpenseCreation.use.getTotalAmount();
+  // const initializeTempExpense = useExpenseCreation.use.initializeTempExpense();
+  // const hydrate = useExpenseCreation.use.hydrate();
+
+  const {
+    setExpenseName: setExpenseNameInStore,
+    getTotalAmount,
+    initializeTempExpense,
+    hydrate,
+  } = useExpenseCreation();
 
   useEffect(() => {
     hydrate();
@@ -205,6 +212,7 @@ export default function AddExpense() {
 }
 
 function TempItemCard({ item }: { item: ItemWithId }) {
+  if (!item) return null;
   return (
     <View
       key={item.id}

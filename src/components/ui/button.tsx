@@ -62,9 +62,7 @@ const button = tv({
     },
     disabled: {
       true: {
-        container: 'bg-neutral-300 dark:bg-accent-800',
-        label: 'text-neutral-600 dark:text-black',
-        indicator: 'text-neutral-400 dark:text-neutral-400',
+        container: 'opacity-60',
       },
     },
     fullWidth: {

@@ -6,14 +6,18 @@ export default function ExpenseCreationFooter({
   hasPrevious = true,
   nextDisabled = false,
   previousDisabled = false,
+  nextButtonLabel = 'Next',
+  previousButtonLabel = 'Back',
   onNextPress,
   onPreviousPress,
 }: {
   totalAmount: number;
   hasNext?: boolean;
   nextDisabled?: boolean;
+  nextButtonLabel?: string;
   hasPrevious?: boolean;
   previousDisabled?: boolean;
+  previousButtonLabel?: string;
   onNextPress?: () => void;
   onPreviousPress?: () => void;
 }) {
@@ -34,7 +38,7 @@ export default function ExpenseCreationFooter({
             className="w-28"
             variant="outline"
             size="lg"
-            label="Back"
+            label={previousButtonLabel}
             onPress={onPreviousPress}
           />
         )}
@@ -44,7 +48,7 @@ export default function ExpenseCreationFooter({
             className="w-28"
             variant="default"
             size="lg"
-            label="Next"
+            label={nextButtonLabel}
             onPress={onNextPress}
           />
         )}

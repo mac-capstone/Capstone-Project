@@ -73,7 +73,6 @@ export const mapMockExpenseToExpenseWithId = (
     date: expense.doc.date,
     remainingAmount: expense.doc.remainingAmount,
     createdBy: expense.doc.createdBy as UserIdT,
-    itemCount: expense.doc.itemCount,
     participantCount: expense.doc.participantCount,
   };
 };
