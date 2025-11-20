@@ -8,8 +8,8 @@ import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
 } from 'expo-speech-recognition';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, BackHandler } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 
 import { queryClient } from '@/api';
@@ -34,10 +34,6 @@ export default function AddExpense() {
     variables: TEMP_EXPENSE_ID,
   });
   const [expenseName, setExpenseName] = useState<string>('');
-  // const setExpenseNameInStore = useExpenseCreation.use.setExpenseName();
-  // const getTotalAmount = useExpenseCreation.use.getTotalAmount();
-  // const initializeTempExpense = useExpenseCreation.use.initializeTempExpense();
-  // const hydrate = useExpenseCreation.use.hydrate();
 
   const {
     setExpenseName: setExpenseNameInStore,
@@ -45,6 +41,38 @@ export default function AddExpense() {
     initializeTempExpense,
     hydrate,
   } = useExpenseCreation();
+
+  const handleLeave = useCallback(async () => {
+    if (tempExpense?.items?.length && tempExpense.items.length > 0) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. Are you sure you want to leave?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Leave',
+            onPress: async () => {
+              router.replace('/');
+              clearTempExpense();
+              setExpenseName('');
+              await queryClient.invalidateQueries({
+                queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+              });
+            },
+          },
+        ]
+      );
+      return true; // Prevent default back behavior when showing alert
+    } else {
+      router.replace('/');
+      clearTempExpense();
+      setExpenseName('');
+      await queryClient.invalidateQueries({
+        queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+      });
+      return true; // Prevent default back behavior (navigation handled above)
+    }
+  }, [tempExpense, setExpenseName]);
 
   useEffect(() => {
     hydrate();
@@ -65,6 +93,17 @@ export default function AddExpense() {
     };
     fetchTempExpense();
   }, [userId, tempExpense, initializeTempExpense, isError]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        handleLeave();
+        return true;
+      }
+    );
+    return () => backHandler.remove();
+  }, [handleLeave]);
 
   if (isPending) {
     return (
@@ -110,44 +149,7 @@ export default function AddExpense() {
             fontWeight: 'bold',
           },
           headerLeft: () => (
-            <Pressable
-              onPress={async () => {
-                if (
-                  tempExpense?.items?.length &&
-                  tempExpense.items.length > 0
-                ) {
-                  Alert.alert(
-                    'Unsaved Changes',
-                    'You have unsaved changes. Are you sure you want to leave?',
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      {
-                        text: 'Leave',
-                        onPress: async () => {
-                          router.replace('/');
-                          clearTempExpense();
-                          setExpenseName('');
-                          await queryClient.invalidateQueries({
-                            queryKey: [
-                              'expenses',
-                              'expenseId',
-                              TEMP_EXPENSE_ID,
-                            ],
-                          });
-                        },
-                      },
-                    ]
-                  );
-                } else {
-                  router.replace('/');
-                  clearTempExpense();
-                  setExpenseName('');
-                  await queryClient.invalidateQueries({
-                    queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
-                  });
-                }
-              }}
-            >
+            <Pressable onPress={handleLeave}>
               <Octicons
                 className="mr-2"
                 name="x"
