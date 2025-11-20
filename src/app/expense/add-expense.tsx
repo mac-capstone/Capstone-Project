@@ -3,7 +3,7 @@ import 'react-native-get-random-values';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { FlashList } from '@shopify/flash-list';
-import { router, Stack } from 'expo-router';
+import { router, Stack, usePathname } from 'expo-router';
 import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
@@ -26,6 +26,7 @@ const TEMP_EXPENSE_ID = 'temp-expense' as ExpenseIdT;
 export default function AddExpense() {
   const theme = useThemeConfig();
   const userId = useAuth.use.userId();
+  const pathname = usePathname();
   const {
     data: tempExpense,
     isPending,
@@ -98,12 +99,16 @@ export default function AddExpense() {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        handleLeave();
+        if (pathname === '/expense/add-expense') {
+          handleLeave();
+        } else {
+          router.back();
+        }
         return true;
       }
     );
     return () => backHandler.remove();
-  }, [handleLeave]);
+  }, [handleLeave, pathname]);
 
   if (isPending) {
     return (

@@ -2,6 +2,7 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { FlashList } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { Alert } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 
 import { queryClient } from '@/api';
@@ -112,7 +113,34 @@ export default function ExpenseView() {
             fontWeight: 'bold',
           },
           headerLeft: () => (
-            <Pressable onPress={() => router.replace('/')}>
+            <Pressable
+              className="opacity-50"
+              disabled={loading}
+              onPress={() => {
+                if (viewMode === 'confirm') {
+                  Alert.alert(
+                    'Unsaved Changes',
+                    'You have unsaved changes. Are you sure you want to leave?',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Leave',
+                        onPress: () => {
+                          clearTempExpense();
+                          queryClient.invalidateQueries({
+                            queryKey: ['expenses', 'expenseId', id],
+                          });
+                          router.replace('/');
+                        },
+                      },
+                    ]
+                  );
+                } else {
+                  router.back();
+                }
+                return true;
+              }}
+            >
               <Octicons
                 className="mr-2"
                 name="x"
