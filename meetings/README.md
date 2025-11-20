@@ -211,3 +211,40 @@
 - Plan next steps and set deadlines for UImodule completion.
 
 ---
+
+# November 19, 2025 - Eleventh Meeting
+
+**Attendees:**
+
+- Michael
+- Asad
+- Viransh
+- Jayesh
+- Abdul-Hadi
+- Eduardo
+- Ankush
+
+**Agenda:**
+
+- Meeting with Professor to discuss project progress.
+- Plan next steps based on Professor's input.
+- Finish PoC code by November 20, 2025.
+
+---
+
+# November 20, 2025 - Twelfth Meeting
+
+**Attendees:**
+
+- Asad
+- Viransh
+- Jayesh
+- Abdul-Hadi
+- Eduardo
+- Ankush
+
+**Agenda:**
+
+- Check final PoC PR by Ankush.
+- Record skit and demo video for November 21, 2025 presentation.
+- Edit the video and submit by today.
