@@ -2,6 +2,7 @@ import 'react-native-get-random-values';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
+import { FlashList } from '@shopify/flash-list';
 import { router, Stack } from 'expo-router';
 import {
   ExpoSpeechRecognitionModule,
@@ -164,9 +165,18 @@ export default function AddExpense() {
             }}
           />
         </View>
-        <View className="flex flex-col gap-4">
-          <TempItemCards tempExpenseItems={tempExpense?.items || []} />
-          <CreateItemCard />
+        <View className="flex-1 flex-col gap-4">
+          <FlashList
+            data={tempExpense?.items || []}
+            renderItem={({ item }) => <TempItemCard item={item} />}
+            keyExtractor={(item) => item.id}
+            ListFooterComponent={
+              <View className="pt-5">
+                <CreateItemCard />
+              </View>
+            }
+            ItemSeparatorComponent={() => <View className="h-5" />}
+          />
         </View>
       </View>
       <View className="px-4 pb-3">
@@ -194,14 +204,8 @@ export default function AddExpense() {
   );
 }
 
-function TempItemCards({
-  tempExpenseItems,
-}: {
-  tempExpenseItems: ItemWithId[];
-}) {
-  console.log('tempExpenseItems', tempExpenseItems);
-  if (!tempExpenseItems || tempExpenseItems.length === 0) return null;
-  return tempExpenseItems.map((item) => (
+function TempItemCard({ item }: { item: ItemWithId }) {
+  return (
     <View
       key={item.id}
       className="flex flex-row items-center justify-between rounded-xl bg-background-900 p-4"
@@ -213,7 +217,7 @@ function TempItemCards({
         ${item.amount.toFixed(2)}
       </Text>
     </View>
-  ));
+  );
 }
 
 function getItemAndAmountFromTaggedWords(taggedWords: any[]): {
