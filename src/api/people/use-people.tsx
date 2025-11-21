@@ -2,7 +2,7 @@ import { createQuery } from 'react-query-kit';
 
 import { mockData } from '@/lib/mock-data';
 import { getTempExpense } from '@/lib/store';
-import { mapMockPersonToPerson } from '@/lib/utils';
+import { calculatePersonShare, mapMockPersonToPerson } from '@/lib/utils';
 import {
   type ExpenseIdT,
   type ItemIdT,
@@ -61,11 +61,22 @@ export const usePerson = createQuery<
     if (expenseId === 'temp-expense') {
       const tempExpense = getTempExpense();
       if (!tempExpense) throw new Error('Temp expense not found');
+      // calculate subtotal this person
+      const subtotal = tempExpense.items.reduce((acc, item) => {
+        if (item.assignedPersonIds.includes(personId)) {
+          return acc + calculatePersonShare(item, personId);
+        } else {
+          return acc;
+        }
+      }, 0);
       const person = tempExpense.people.find(
         (person) => person.id === personId
       );
       if (!person) throw new Error('Person not found');
-      return person;
+      return {
+        ...person,
+        subtotal,
+      };
     }
     const expense = mockData.expenses.find(
       (expense) => expense.id === expenseId

@@ -46,7 +46,10 @@ export const ExpenseCard = ({ id, config }: Props) => {
     <Pressable
       className="flex-1"
       onPress={() => {
-        router.push(`/expense/${id}`);
+        router.push({
+          pathname: `/expense/[id]`,
+          params: { id, viewMode: 'view' },
+        });
       }}
     >
       <View className="min-h-40 rounded-xl  bg-background-900 shadow-lg">

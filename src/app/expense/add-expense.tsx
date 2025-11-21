@@ -2,13 +2,14 @@ import 'react-native-get-random-values';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
-import { router, Stack } from 'expo-router';
+import { FlashList } from '@shopify/flash-list';
+import { router, Stack, usePathname } from 'expo-router';
 import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
 } from 'expo-speech-recognition';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, BackHandler } from 'react-native';
 import { v4 as uuidv4 } from 'uuid';
 
 import { queryClient } from '@/api';
@@ -18,13 +19,14 @@ import { Button, Input, Pressable, Text, View } from '@/components/ui';
 import { useAuth } from '@/lib';
 import { clearTempExpense, useExpenseCreation } from '@/lib/store';
 import { useThemeConfig } from '@/lib/use-theme-config';
-import { type ExpenseIdT, type ItemIdT } from '@/types';
+import { type ExpenseIdT, type ItemIdT, type ItemWithId } from '@/types';
 
 const TEMP_EXPENSE_ID = 'temp-expense' as ExpenseIdT;
 
 export default function AddExpense() {
   const theme = useThemeConfig();
   const userId = useAuth.use.userId();
+  const pathname = usePathname();
   const {
     data: tempExpense,
     isPending,
@@ -33,24 +35,80 @@ export default function AddExpense() {
     variables: TEMP_EXPENSE_ID,
   });
   const [expenseName, setExpenseName] = useState<string>('');
-  const setExpenseNameInStore = useExpenseCreation.use.setExpenseName();
-  const getTotalAmount = useExpenseCreation.use.getTotalAmount();
-  const initializeTempExpense = useExpenseCreation.use.initializeTempExpense();
-  const hydrate = useExpenseCreation.use.hydrate();
+
+  const {
+    setExpenseName: setExpenseNameInStore,
+    getTotalAmount,
+    initializeTempExpense,
+    hydrate,
+  } = useExpenseCreation();
+
+  const handleLeave = useCallback(async () => {
+    if (tempExpense?.items?.length && tempExpense.items.length > 0) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. Are you sure you want to leave?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Leave',
+            onPress: async () => {
+              router.replace('/');
+              clearTempExpense();
+              setExpenseName('');
+              await queryClient.invalidateQueries({
+                queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+              });
+            },
+          },
+        ]
+      );
+      return true; // Prevent default back behavior when showing alert
+    } else {
+      router.replace('/');
+      clearTempExpense();
+      setExpenseName('');
+      await queryClient.invalidateQueries({
+        queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+      });
+      return true; // Prevent default back behavior (navigation handled above)
+    }
+  }, [tempExpense, setExpenseName]);
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
   useEffect(() => {
-    // if the user is logged in and the temp expense is not found
-    if (userId && (!tempExpense || isError)) {
-      initializeTempExpense(userId);
-      queryClient.invalidateQueries({
-        queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
-      });
-    }
+    const fetchTempExpense = async () => {
+      // if the user is logged in and the temp expense is not found
+      if (userId && (!tempExpense || isError)) {
+        initializeTempExpense(userId);
+        await queryClient.invalidateQueries({
+          queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['items', 'expenseId', TEMP_EXPENSE_ID],
+        });
+      }
+    };
+    fetchTempExpense();
   }, [userId, tempExpense, initializeTempExpense, isError]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (pathname === '/expense/add-expense') {
+          handleLeave();
+        } else {
+          router.back();
+        }
+        return true;
+      }
+    );
+    return () => backHandler.remove();
+  }, [handleLeave, pathname]);
 
   if (isPending) {
     return (
@@ -96,44 +154,7 @@ export default function AddExpense() {
             fontWeight: 'bold',
           },
           headerLeft: () => (
-            <Pressable
-              onPress={() => {
-                if (
-                  tempExpense?.items?.length &&
-                  tempExpense.items.length > 0
-                ) {
-                  Alert.alert(
-                    'Unsaved Changes',
-                    'You have unsaved changes. Are you sure you want to leave?',
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      {
-                        text: 'Leave',
-                        onPress: () => {
-                          router.replace('/');
-                          clearTempExpense();
-                          setExpenseName('');
-                          queryClient.invalidateQueries({
-                            queryKey: [
-                              'expenses',
-                              'expenseId',
-                              TEMP_EXPENSE_ID,
-                            ],
-                          });
-                        },
-                      },
-                    ]
-                  );
-                } else {
-                  router.replace('/');
-                  clearTempExpense();
-                  setExpenseName('');
-                  queryClient.invalidateQueries({
-                    queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
-                  });
-                }
-              }}
-            >
+            <Pressable onPress={handleLeave}>
               <Octicons
                 className="mr-2"
                 name="x"
@@ -158,9 +179,18 @@ export default function AddExpense() {
             }}
           />
         </View>
-        <View className="flex flex-col gap-4">
-          <TempItemCards />
-          <CreateItemCard />
+        <View className="flex-1 flex-col gap-4">
+          <FlashList
+            data={tempExpense?.items || []}
+            renderItem={({ item }) => <TempItemCard item={item} />}
+            keyExtractor={(item) => item.id}
+            ListFooterComponent={
+              <View className="pt-5">
+                <CreateItemCard />
+              </View>
+            }
+            ItemSeparatorComponent={() => <View className="h-5" />}
+          />
         </View>
       </View>
       <View className="px-4 pb-3">
@@ -173,13 +203,13 @@ export default function AddExpense() {
       </View>
       <ExpenseCreationFooter
         nextDisabled={getTotalAmount() === 0 || expenseName === ''}
-        onNextPress={() => {
+        onNextPress={async () => {
           setExpenseNameInStore(expenseName);
           setExpenseName('');
-          queryClient.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
           });
-          router.replace('/expense/split-expense');
+          router.push('/expense/split-expense');
         }}
         totalAmount={getTotalAmount()}
         hasPrevious={false}
@@ -188,10 +218,9 @@ export default function AddExpense() {
   );
 }
 
-function TempItemCards() {
-  const tempExpense = useExpenseCreation.use.tempExpense();
-  if (!tempExpense) return null;
-  return tempExpense.items.map((item) => (
+function TempItemCard({ item }: { item: ItemWithId }) {
+  if (!item) return null;
+  return (
     <View
       key={item.id}
       className="flex flex-row items-center justify-between rounded-xl bg-background-900 p-4"
@@ -203,7 +232,7 @@ function TempItemCards() {
         ${item.amount.toFixed(2)}
       </Text>
     </View>
-  ));
+  );
 }
 
 function getItemAndAmountFromTaggedWords(taggedWords: any[]): {
@@ -377,7 +406,7 @@ function CreateItemCard() {
       />
       <Button
         label="Add Item"
-        onPress={() => {
+        onPress={async () => {
           addItem({
             id: uuidv4() as ItemIdT,
             name: tempItemName,
@@ -388,10 +417,10 @@ function CreateItemCard() {
             },
             assignedPersonIds: [],
           });
-          queryClient.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: ['expenses', 'expenseId', TEMP_EXPENSE_ID],
           });
-          queryClient.invalidateQueries({
+          await queryClient.invalidateQueries({
             queryKey: ['items', 'expenseId', TEMP_EXPENSE_ID],
           });
           setTempItemName('');

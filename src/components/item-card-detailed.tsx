@@ -12,6 +12,7 @@ import { queryClient } from '@/api/common/api-provider';
 import { useExpense } from '@/api/expenses/use-expenses';
 import { useItem } from '@/api/items/use-items';
 import { usePeopleIdsForItem } from '@/api/people/use-people';
+import { calculatePersonShare } from '@/lib';
 import { useExpenseCreation } from '@/lib/store';
 import {
   type ExpenseIdT,
@@ -61,21 +62,24 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
   const isError = isItemError || isAssignedIdsError || isExpenseError;
 
   useEffect(() => {
-    if (
-      splitMode === 'equal' &&
-      assignedPersonIds &&
-      assignedPersonIds.length > 0
-    ) {
-      assignedPersonIds.forEach((personId) => {
-        updateItemShare(itemId, personId, 1);
-      });
-      queryClient.invalidateQueries({
-        queryKey: useItem.getKey({
-          expenseId,
-          itemId,
-        }),
-      });
-    }
+    const updateItemShares = async () => {
+      if (
+        splitMode === 'equal' &&
+        assignedPersonIds &&
+        assignedPersonIds.length > 0
+      ) {
+        assignedPersonIds.forEach((personId) => {
+          updateItemShare(itemId, personId, 1);
+        });
+        await queryClient.invalidateQueries({
+          queryKey: useItem.getKey({
+            expenseId,
+            itemId,
+          }),
+        });
+      }
+    };
+    updateItemShares();
   }, [splitMode, assignedPersonIds, itemId, updateItemShare, expenseId]);
 
   if (isPending) {
@@ -100,16 +104,11 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
       (assignedPersonIds ?? []).includes(p.id)
     ) ?? [];
 
-  const totalShares = Object.values(item.split.shares).reduce(
-    (acc, share) => acc + share,
-    0
-  );
-
-  const handleIncrease = (personId: PersonIdT) => {
+  const handleIncrease = async (personId: PersonIdT) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat((currentShare + 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: useItem.getKey({
         expenseId,
         itemId,
@@ -117,11 +116,11 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     });
   };
 
-  const handleDecrease = (personId: PersonIdT) => {
+  const handleDecrease = async (personId: PersonIdT) => {
     const currentShare = item.split.shares[personId] || 0;
     const newShare = parseFloat(Math.max(0, currentShare - 1).toFixed(1));
     updateItemShare(itemId, personId, newShare);
-    queryClient.invalidateQueries({
+    await queryClient.invalidateQueries({
       queryKey: useItem.getKey({
         expenseId,
         itemId,
@@ -131,7 +130,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
 
   const participants = assignedPeople.map((person: PersonWithId) => {
     const share = item.split.shares[person.id] || 0;
-    const price = totalShares > 0 ? (itemPrice / totalShares) * share : 0;
+    const price = calculatePersonShare(item, person.id);
     return {
       ...person,
       quantity: share,
@@ -143,13 +142,7 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
     <View className="w-full overflow-hidden rounded-xl bg-neutral-800 p-4 shadow-lg">
       {/* Top section */}
       <View className="flex-row items-center justify-between">
-        <View
-          className={
-            splitMode === 'equal'
-              ? 'w-10/12 flex-row items-center'
-              : 'w-9/12 flex-row items-center'
-          }
-        >
+        <View className="w-9/12 flex-row items-center gap-2">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -167,18 +160,17 @@ export const ItemCardDetailed = ({ expenseId, itemId }: Props) => {
           </ScrollView>
           {assignedPeople.length > 0 && (
             <Pressable
-              className="ml-3"
-              onPress={() => {
+              onPress={async () => {
                 assignedPeople.forEach((person) => {
                   removePersonFromItem(itemId, person.id);
                 });
-                queryClient.invalidateQueries({
+                await queryClient.invalidateQueries({
                   queryKey: usePeopleIdsForItem.getKey({
                     expenseId,
                     itemId,
                   }),
                 });
-                queryClient.invalidateQueries({
+                await queryClient.invalidateQueries({
                   queryKey: useItem.getKey({
                     expenseId,
                     itemId,

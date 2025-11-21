@@ -4,7 +4,7 @@ import React from 'react';
 import { usePersonItems } from '@/api/items/use-person-items';
 import { usePerson } from '@/api/people/use-people';
 import { ActivityIndicator, Text, View } from '@/components/ui';
-import { personShare } from '@/lib/utils';
+import { calculatePersonShare } from '@/lib/utils';
 import { type ExpenseIdT, type PersonIdT } from '@/types';
 
 import { PersonAvatar } from './person-avatar';
@@ -34,7 +34,7 @@ export const PersonCard = ({
           </Text>
         </View>
         <Text className="font-futuraDemi text-xl dark:text-accent-100">
-          ${data.subtotal.toFixed(2)}
+          ${data.subtotal?.toFixed(2)}
         </Text>
       </View>
       <View className="ml-6 mt-1 border-l border-white/15 pl-4">
@@ -61,11 +61,7 @@ export const PersonItemList = ({
     return <Text>Error loading items</Text>;
   }
   if (data.length === 0) {
-    return (
-      <View className="ml-6 border-l border-white/15 pl-4">
-        <Text className="text-text-400">No items assigned</Text>
-      </View>
-    );
+    return <></>;
   }
 
   return (
@@ -73,7 +69,7 @@ export const PersonItemList = ({
       <FlashList
         data={data}
         renderItem={({ item }) => {
-          const share = personShare(item, personId);
+          const share = calculatePersonShare(item, personId);
           return (
             <View
               key={item.id}
@@ -89,7 +85,6 @@ export const PersonItemList = ({
           );
         }}
         keyExtractor={(item) => item.id}
-        // ItemSeparatorComponent={() => <View className="h-1" />} // 12px gap
       />
     </View>
   );
